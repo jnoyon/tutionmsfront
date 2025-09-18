@@ -1,7 +1,138 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react';
+import { db } from '../firebase/firebase.init';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { AuthContext } from '../firebase/AuthProvider';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Report() {
+  const { user } = useContext(AuthContext);
+  const [student, setStudent] = useState(null);
+
+  useEffect(() => {
+    if (!user?.phone) return; // use phone instead of email
+
+    const fetchStudent = async () => {
+      try {
+        const q = query(collection(db, 'students'), where('phone', '==', user.phone));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          setStudent({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() });
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to fetch student data");
+      }
+    };
+
+    fetchStudent();
+  }, [user?.phone]);
+
+  if (!student) return <div>Loading...</div>;
+
+  const attendanceDates = student.attendance
+    ? Object.entries(student.attendance)
+    : [];
+  const fees = student.fees || [];
+
   return (
-    <div>Report</div>
-  )
+    <div className="bg-gradient-to-l from-yellow-50 via-red-50 to-blue-50 py-5">
+      <ToastContainer autoClose={2000} />
+
+      {/* Student Info */}
+      <div className="border border-gray-300 rounded-lg p-3 bg-white mx-auto w-11/12">
+        <div className="text-center border-b border-gray-300 py-2 mb-2">
+          <img 
+            src={student.image} 
+            alt={student.name} 
+            className="w-24 h-24 rounded-full mx-auto mb-2 border-2 border-gray-300 object-cover" 
+          />
+          <b>{student.name}</b>
+          <p>{student.batch} ব্যাচ</p>
+        </div>
+        <div className="flex flex-col gap-1">
+          <p><strong>মোবাইল:</strong> {student.phone}</p>
+          <p><strong>পিতার নাম:</strong> {student.fatherName}</p>
+          <p><strong>ঠিকানা:</strong> {student.address}</p>
+          <p><strong>শিক্ষা প্রতিষ্ঠান:</strong> {student.instituteName}</p>
+          <p><strong>অবস্থান:</strong> {student.role}</p>
+        </div>
+      </div>
+
+      {/* Attendance Report */}
+      <div className="border border-gray-300 rounded-lg p-3 bg-white mx-auto w-11/12 mt-5">
+        <div className="text-center border-b border-gray-300 py-2 mb-2">
+          <b>উপস্থিতি</b>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {attendanceDates.length === 0 && <p className="text-gray-500">কোনও উপস্থিতি তথ্য নেই</p>}
+          {attendanceDates.map(([date, record], index) => (
+            <div
+              key={date}
+              className={`w-8 h-8 rounded-md flex items-center justify-center text-white font-bold cursor-pointer ${
+                record.present ? 'bg-green-600' : 'bg-red-600'
+              }`}
+              onClick={() => toast.info(`তারিখ: ${date} - উপস্থিতি: ${record.present ? 'হ্যাঁ' : 'না'}`)}
+            >
+              {index + 1}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Assignment Report */}
+      <div className="border border-gray-300 rounded-lg p-3 bg-white mx-auto w-11/12 mt-5">
+        <div className="text-center border-b border-gray-300 py-2 mb-2">
+          <b>এসাইনমেন্ট রিপোর্ট</b>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {attendanceDates.length === 0 && <p className="text-gray-500">কোনও এসাইনমেন্ট তথ্য নেই</p>}
+          {attendanceDates.map(([date, record], index) => (
+            <div
+              key={date}
+              className={`w-8 h-8 rounded-md flex items-center justify-center text-white font-bold cursor-pointer ${
+                record.assignment ? 'bg-green-600' : 'bg-red-600'
+              }`}
+              onClick={() => toast.info(`তারিখ: ${date} - এসাইনমেন্ট: ${record.assignment ? 'হ্যাঁ' : 'না'}`)}
+            >
+              {index + 1}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Payment Report */}
+      <div className="border border-gray-300 rounded-lg p-3 bg-white mx-auto w-11/12 mt-5">
+        <div className="text-center border-b border-gray-300 py-2 mb-2">
+          <b>পেমেন্ট রিপোর্ট</b>
+        </div>
+        {fees.length === 0 ? (
+          <p className="text-gray-500 text-center">কোনও ফি জমা হয়নি</p>
+        ) : (
+          <table className="table-auto border-collapse border border-gray-400 w-full">
+            <thead>
+              <tr>
+                <th className="border border-gray-300 p-1.5">টাকা</th>
+                <th className="border border-gray-300 p-1.5">বিবরণ</th>
+                <th className="border border-gray-300 p-1.5">তারিখ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fees.map((f, idx) => (
+                <tr key={idx}>
+                  <td className="border border-gray-300 p-1.5">{f.amount}</td>
+                  <td className="border border-gray-300 p-1.5">{f.description}</td>
+                  <td className="border border-gray-300 p-1.5">
+                    {f.paidAt
+                      ? new Date(f.paidAt.seconds ? f.paidAt.seconds * 1000 : f.paidAt).toLocaleDateString()
+                      : '---'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
 }

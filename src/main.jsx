@@ -5,7 +5,6 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 import MainLayout from './layout/MainLayout.jsx'
 import Home from './pages/Home.jsx'
 import SignUp from './firebase/SignUp.jsx'
-import AdmissionForm from './pages/AdmissionForm.jsx'
 import AuthProvider from './firebase/AuthProvider.jsx'
 import AddFee from './manage/AddFee.jsx'
 import Login from './firebase/Login.jsx'
@@ -32,7 +31,6 @@ createRoot(document.getElementById('root')).render(
           <Route index element={<Home></Home>} ></Route>
           <Route path='/signup' element={<SignUp></SignUp>} ></Route>
           <Route path='/login' element={<Login></Login>} ></Route>
-          <Route path='/admit' element={<SignUp></SignUp>}></Route>
 
           <Route path='/profile' element={<StudentRoute><Profile></Profile></StudentRoute>}> </Route>
 
@@ -42,8 +40,8 @@ createRoot(document.getElementById('root')).render(
           <Route path='/sheet' element={<StudentRoute><Sheet></Sheet></StudentRoute>}> </Route>
           <Route path='/leaderboard' element={<StudentRoute><Leaderboard></Leaderboard></StudentRoute>}> </Route>
 
-          <Route path='/add-fee' element={<ManagerRoute><AddFee></AddFee></ManagerRoute>}> </Route>
-          <Route path='/add-attendance' element={<ManagerRoute><AddAttendance></AddAttendance></ManagerRoute>}> </Route>
+          <Route path='/add-fee' element={<PrivateRoute><AddFee></AddFee></PrivateRoute>}> </Route>
+          <Route path='/add-attendance' element={<PrivateRoute><AddAttendance></AddAttendance></PrivateRoute>}> </Route>
           <Route path='/add-exam' element={<ManagerRoute><AddExam></AddExam></ManagerRoute>}> </Route>
           <Route path='/add-notice' element={<ManagerRoute><AddNotice></AddNotice></ManagerRoute>}> </Route>
           <Route path='/add-result' element={<ManagerRoute><AddResult></AddResult></ManagerRoute>}> </Route>
