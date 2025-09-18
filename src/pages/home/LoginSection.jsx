@@ -1,6 +1,5 @@
-import React from 'react'
 
-export default function Login() {
+export default function LoginSection() {
   return (
     <div>
         <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-full mb-5 border p-4">

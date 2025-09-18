@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function Leaderboard() {
+export default function LeaderboardSection() {
   const students = [
     {
       name: "জিহাদুর রহমান নয়ন",

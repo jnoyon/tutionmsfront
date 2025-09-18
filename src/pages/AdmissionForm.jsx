@@ -9,9 +9,8 @@ export default function AdmissionForm() {
     address: '',
     collegeName: '',
     batch: '',
-    isActive: false,
+    role: 'inactive',
     id: '',
-    pin: '',
     admissiondate: '',
   });
 

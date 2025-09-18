@@ -11,7 +11,7 @@ export default function SignUp() {
             <label className="label">শিক্ষার্থীর পাসওয়ার্ড</label>
             <input type="password" className="input w-full" placeholder="পাসওয়ার্ড" />
 
-            <button className="btn btn-neutral mt-4">লগিন করুন</button>
+            <button className="btn btn-neutral mt-4"> পরবর্তী ধাপ </button>
         </fieldset>
   )
 }

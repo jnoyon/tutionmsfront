@@ -37,10 +37,10 @@ export default function Header() {
               tabIndex={0}
               className="menu dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
             >
-              <li><Link to="/report">পরীক্ষাসমূহ</Link></li>
-              <li><Link to="/profile">লেকচারশীট</Link></li>
+              <li><Link to="/exam">পরীক্ষাসমূহ</Link></li>
+              <li><Link to="/sheet">লেকচারশীট</Link></li>
               <li><Link to='/result'>পরীক্ষার ফলাফল</Link></li>
-              <li><Link to='/result'>লিডারবোর্ড</Link></li>
+              <li><Link to='/leaderboard'>লিডারবোর্ড</Link></li>
               <li className='text-xs'>  {user.email} </li>
             </ul>
       </div>
@@ -62,7 +62,7 @@ export default function Header() {
     </div>
 
    )
-  : <Link to='/signin'> লগিন </Link>} 
+  : <Link to='/login'> লগিন </Link>} 
   </div>
 </div>
   )
