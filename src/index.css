@@ -1,0 +1,21 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@font-face {
+  font-family: 'LiAdorNoirritRegular';
+  src: url('./assets/fonts/LiAdorNoirritRegular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'LiSabbirAshalota1Unicode';
+  src: url('./assets/fonts/LiSabbirAshalota1Unicode.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+body {
+  font-family: 'LiAdorNoirritRegular', sans-serif;
+}
+.f-s {
+  font-family: 'LiSabbirAshalota1Unicode',  sans-serif;
+}
