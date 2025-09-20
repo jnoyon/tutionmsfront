@@ -62,23 +62,23 @@ export default function AddAttendance() {
   return (
     <div className='py-5 w-11/12 mx-auto'>
       <ToastContainer autoClose={2000} />
-      <div className='mb-3'>
-        <label>ব্যাচ নির্বাচন করুন:</label>
+      <div className='mb-3 flex items-center gap-2'>
+        <label>ব্যাচ:</label>
         <select
-          className='select select-bordered ml-2'
+          className='select select-bordered w-full'
           value={batch}
           onChange={e => setBatch(e.target.value)}
         >
-          <option value='Intensive-1'>ইন্টেন্সিভ</option>
-          <option value='Focus-1'>ফোকাস</option>
-          <option value='Computer'>কম্পিউটার</option>
+          <option value='ইন্টেন্সিভ'>ইন্টেন্সিভ</option>
+          <option value='ফোকাস'>ফোকাস</option>
+          <option value='অন্যান্য'>অন্যান্য</option>
         </select>
       </div>
 
       {loading ? (
         <p>Loading students...</p>
       ) : (
-        <table className="border-collapse border border-gray-400 w-full">
+        <table className="border-collapse border border-gray-400 w-full bg-white">
           <thead>
             <tr>
               <th className="border border-gray-300 p-1.5">নাম</th>

@@ -5,7 +5,7 @@ import Footer from '../shared/Footer'
 
 export default function MainLayout() {
   return (
-    <div>
+    <div className='bg-gradient-to-l from-yellow-50 via-red-50 to-blue-50'>
         <Header></Header>
         <Outlet></Outlet>
         <Footer></Footer>

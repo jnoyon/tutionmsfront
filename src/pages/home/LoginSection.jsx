@@ -4,37 +4,37 @@ import { toast, ToastContainer } from "react-toastify";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { AuthContext } from "../../firebase/AuthProvider";
 import { db } from "../../firebase/firebase.init";
+import 'react-toastify/dist/ReactToastify.css';
 
-export default function LoginSection() {
+export default function StudentLogin() {
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
+  const [studentId, setStudentId] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (!phone || !password) {
-      return toast.error("মোবাইল এবং পাসওয়ার্ড লিখুন");
+    if (!studentId) {
+      return toast.error("স্টুডেন্ট আইডি লিখুন");
     }
 
     try {
-      const q = query(collection(db, "students"), where("phone", "==", phone));
+      const q = query(collection(db, "students"), where("studentId", "==", studentId));
       const snapshot = await getDocs(q);
 
       if (snapshot.empty) {
-        return toast.error("মোবাইল নম্বর পাওয়া যায়নি");
+        return toast.error("স্টুডেন্ট আইডি পাওয়া যায়নি");
       }
 
       const student = snapshot.docs[0].data();
 
-      if (student.password !== password) {
-        return toast.error("পাসওয়ার্ড ভুল");
-      }
-
       // login success
       setUser({ id: snapshot.docs[0].id, ...student });
+
+      // Save to localStorage for persistence
+      localStorage.setItem("loggedInStudent", JSON.stringify({ id: snapshot.docs[0].id, ...student }));
+
       toast.success("লগিন সফল!");
       navigate("/report");
     } catch (err) {
@@ -50,24 +50,15 @@ export default function LoginSection() {
         <h2 className="text-center text-2xl font-bold mb-2">
           <span className="text-red-500">ল</span>গিন করুন
         </h2>
-        <p>শিক্ষার্থীর যাবতীয় তথ্য দেখার জন্য লগিন করুন</p>
+        <p>শুধুমাত্র স্টুডেন্ট আইডি দিয়ে লগিন করুন</p>
 
-        <label className="label">শিক্ষার্থীর মোবাইল নম্বর</label>
+        <label className="label">স্টুডেন্ট আইডি</label>
         <input
-          type="number"
+          type="text"
           className="input w-full"
-          placeholder="মোবাইল নম্বর"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-
-        <label className="label">শিক্ষার্থীর পাসওয়ার্ড</label>
-        <input
-          type="password"
-          className="input w-full"
-          placeholder="পাসওয়ার্ড"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          placeholder="৬-সংখ্যার স্টুডেন্ট আইডি"
+          value={studentId}
+          onChange={(e) => setStudentId(e.target.value)}
         />
 
         <button className="btn btn-neutral mt-4" onClick={handleLogin}>

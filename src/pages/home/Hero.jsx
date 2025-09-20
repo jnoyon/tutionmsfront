@@ -12,7 +12,7 @@ export default function Hero() {
       .then((data) => setAnimationData(data));
   }, []);
   return (
-    <div className="flex pr-2 gap-1 items-center justify-between bg-gradient-to-l from-yellow-50 via-red-50 to-blue-50">
+    <div className="flex pr-2 gap-1 items-center justify-between">
       <div className="w-1/2">
         {animationData && <Lottie animationData={animationData} loop={true} />}
       </div>
@@ -52,7 +52,7 @@ export default function Hero() {
                     <p> <b> মাসিক ফি </b> <br /> ১২০০ টাকা </p> 
                   </div>
                 </div>
-        <p className="text-center mt-2"><Link to='/admit' className="btn btn-sm btn-error text-white"> ভর্তি হোন </Link></p>
+        <p className="text-center mt-2"><Link to='/signup' className="btn btn-sm btn-error text-white"> ভর্তি হোন </Link></p>
       </div>
       
     </dialog>
@@ -81,7 +81,7 @@ export default function Hero() {
                     <p> <b> মাসিক ফি </b> <br /> ৬০০ টাকা </p> 
                   </div>
                 </div>
-        <p className="text-center mt-2"><Link to='/admit' className="btn btn-sm btn-error text-white"> ভর্তি হোন </Link></p>
+        <p className="text-center mt-2"><Link to='/signup' className="btn btn-sm btn-error text-white"> ভর্তি হোন </Link></p>
       </div>
       
     </dialog>

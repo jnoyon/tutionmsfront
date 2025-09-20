@@ -7,49 +7,41 @@ import { db } from "../firebase/firebase.init";
 
 export default function Login() {
   const { signInUser, setUser } = useContext(AuthContext);
-  const [role, setRole] = useState("student"); // student or admin
-  const [phone, setPhone] = useState("");
+  const [role, setRole] = useState("student");
+  const [studentId, setStudentId] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/report"; // redirect after login
+  const from = location.state?.from?.pathname || "/report";
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  try {
+    if (role === "student") {
+      const q = query(collection(db, "students"), where("studentId", "==", studentId));
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) return toast.error("Invalid Student ID");
 
-    try {
-      if (role === "student") {
-        // Student login via phone/password
-        const q = query(
-          collection(db, "students"),
-          where("phone", "==", phone),
-          where("password", "==", password)
-        );
+      const studentData = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+      setUser(studentData);
 
-        const snapshot = await getDocs(q);
-        if (snapshot.empty) {
-          toast.error("Invalid phone or password");
-          return;
-        }
+      // ✅ Save to localStorage
+      localStorage.setItem("loggedInStudent", JSON.stringify(studentData));
 
-        const studentData = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-        setUser(studentData); // store student in context
-        toast.success("Student logged in successfully!");
-      } else {
-        // Admin/CR login via email/password
-        await signInUser(email, password);
-        toast.success("Logged in successfully!");
-        // user info will be automatically updated via AuthProvider
-      }
-
-      navigate(from, { replace: true });
-    } catch (err) {
-      console.error(err);
-      toast.error("Login failed: " + err.message);
+      toast.success("Student logged in successfully!");
+      navigate("/report");
+    } else {
+      await signInUser(email, password);
+      toast.success("Admin logged in successfully!");
+      navigate("/");
     }
-  };
+  } catch (err) {
+    toast.error("Login failed: " + err.message);
+  }
+};
+
 
   return (
     <div className="hero bg-base-200 min-h-screen">
@@ -76,13 +68,13 @@ export default function Login() {
 
               {role === "student" ? (
                 <>
-                  <label className="label">Phone</label>
+                  <label className="label">Student ID</label>
                   <input
                     type="text"
                     className="input"
-                    placeholder="Phone number"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Enter 6-digit ID"
+                    value={studentId}
+                    onChange={(e) => setStudentId(e.target.value)}
                     required
                   />
                 </>
@@ -97,18 +89,18 @@ export default function Login() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
+
+                  <label className="label">Password</label>
+                  <input
+                    type="password"
+                    className="input"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                 </>
               )}
-
-              <label className="label">Password</label>
-              <input
-                type="password"
-                className="input"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
 
               <button type="submit" className="btn btn-neutral mt-4">
                 লগিন করুন

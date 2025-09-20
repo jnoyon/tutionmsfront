@@ -1,51 +1,51 @@
-import { createContext, useEffect, useState } from "react";
-import { auth, db } from "../firebase/firebase.init";
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import React, { createContext, useState, useEffect } from "react";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 
-export const AuthContext = createContext(null);
+export const AuthContext = createContext();
 
 export default function AuthProvider({ children }) {
+  const auth = getAuth();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        // Get Firestore user document by email
-        const q = query(collection(db, "students"), where("user", "==", currentUser.email));
-        const snapshot = await getDocs(q);
+    const storedStudent = localStorage.getItem("loggedInStudent");
+    if (storedStudent) {
+      setUser(JSON.parse(storedStudent));
+    }
 
-        if (!snapshot.empty) {
-          const userData = snapshot.docs[0].data();
-          setUser({
-            ...currentUser,
-            isActive: userData.isActive ?? true, // default true if field missing
-          });
-        } else {
-          // If no Firestore doc, default active
-          setUser({ ...currentUser, isActive: true });
-        }
-      } else {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        // Admin logged in
+        setUser({ uid: currentUser.uid, email: currentUser.email });
+      } else if (!storedStudent) {
+        // No admin, no student
         setUser(null);
       }
-      setLoading(false);
+      setLoading(false); // ✅ Done loading after checking Firebase auth
     });
 
+    // If student exists in localStorage but no Firebase auth (normal case), finish loading
+    if (storedStudent && !auth.currentUser) setLoading(false);
+
     return () => unsubscribe();
-  }, []);
+  }, [auth]);
 
-  const signInUser = (email, password) => {
-    setLoading(true);
-    return signInWithEmailAndPassword(auth, email, password);
+  const signInUser = async (email, password) => {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    setUser({ uid: cred.user.uid, email: cred.user.email });
+    return cred;
   };
 
-  const logOut = () => {
-    setLoading(true);
-    return signOut(auth);
+  const logOut = async () => {
+    await signOut(auth);
+    setUser(null);
+    localStorage.removeItem("loggedInStudent");
   };
 
-  const authInfo = { user, loading, setUser, logOut };
-
-  return <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, setUser, signInUser, logOut, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

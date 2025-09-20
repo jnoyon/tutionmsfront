@@ -2,7 +2,7 @@ import Accordion from "../../components/Accordion";
 
 export default function FAQ() {
   return (
-    <div className="border border-gray-200 p-2 rounded-md">
+    <div className="border border-gray-200 p-2 rounded-md bg-white">
       <h2 className="text-center text-2xl font-bold mb-2"> <span className="text-red-500">প্র</span>শ্নোত্তর</h2>
       <Accordion
         heading="প্রতিদিন কয়টি ক্লাস হবে?"

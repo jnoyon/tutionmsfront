@@ -1,8 +1,10 @@
+// AdminRoute.jsx
 import React, { useContext } from "react";
 import { Navigate } from "react-router";
 import { AuthContext } from "./AuthProvider";
+import { toast } from "react-toastify";
 
-export default function PrivateRoute({ children }) {
+export default function AdminRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
 
   if (loading) {
@@ -13,7 +15,9 @@ export default function PrivateRoute({ children }) {
     );
   }
 
-  if (!user || (!user.isActive && !user.email)) {
+  // Admin users have email in Auth (Firebase email/password)
+  if (!user || !user.email) {
+    toast.error("You must be an admin to access this page!");
     return <Navigate to="/login" replace />;
   }
 

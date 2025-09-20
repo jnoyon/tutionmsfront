@@ -18,9 +18,9 @@ import Result from './pages/Result.jsx'
 import Profile from './pages/Profile.jsx'
 import Report from './pages/Report.jsx'
 import Leaderboard from './pages/Leaderboard.jsx'
-import StudentLogin from './firebase/StudentLogin.jsx'
-import AdminLogin from './firebase/AdminLogin.jsx'
 import Login from './firebase/Login.jsx'
+import Students from './manage/Students.jsx'
+import AdminRoute from './firebase/AdminRoute.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -30,7 +30,6 @@ createRoot(document.getElementById('root')).render(
         <Route path='/' element={<MainLayout></MainLayout>}>
           <Route index element={<Home></Home>} ></Route>
           <Route path='/signup' element={<SignUp></SignUp>} ></Route>
-          <Route path='/manage' element={<AdminLogin></AdminLogin>} ></Route>
           <Route path='/profile' element={<PrivateRoute><Profile></Profile></PrivateRoute>}> </Route>
           <Route path='/login' element={<Login></Login>}> </Route>
           <Route path='/report' element={<PrivateRoute><Report></Report></PrivateRoute>}> </Route>
@@ -38,12 +37,12 @@ createRoot(document.getElementById('root')).render(
           <Route path='/result' element={<PrivateRoute><Result></Result></PrivateRoute>}> </Route>
           <Route path='/sheet' element={<PrivateRoute><Sheet></Sheet></PrivateRoute>}> </Route>
           <Route path='/leaderboard' element={<PrivateRoute><Leaderboard></Leaderboard></PrivateRoute>}> </Route>
-
-          <Route path='/add-fee' element={<PrivateRoute><AddFee></AddFee></PrivateRoute>}> </Route>
-          <Route path='/add-attendance' element={<PrivateRoute><AddAttendance></AddAttendance></PrivateRoute>}> </Route>
-          <Route path='/add-exam' element={<PrivateRoute><AddExam></AddExam></PrivateRoute>}> </Route>
-          <Route path='/add-notice' element={<PrivateRoute><AddNotice></AddNotice></PrivateRoute>}> </Route>
-          <Route path='/add-result' element={<PrivateRoute><AddResult></AddResult></PrivateRoute>}> </Route>
+          <Route path='/students' element={<AdminRoute><Students></Students></AdminRoute>}> </Route>
+          <Route path='/add-fee' element={<AdminRoute><AddFee></AddFee></AdminRoute>}> </Route>
+          <Route path='/add-attendance' element={<AdminRoute><AddAttendance></AddAttendance></AdminRoute>}> </Route>
+          <Route path='/add-exam' element={<AdminRoute><AddExam></AddExam></AdminRoute>}> </Route>
+          <Route path='/add-notice' element={<AdminRoute><AddNotice></AddNotice></AdminRoute>}> </Route>
+          <Route path='/add-result' element={<AdminRoute><AddResult></AddResult></AdminRoute>}> </Route>
         </Route>
       </Routes>
     </BrowserRouter>
