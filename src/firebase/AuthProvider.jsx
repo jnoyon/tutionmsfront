@@ -1,5 +1,12 @@
 import React, { createContext, useState, useEffect } from "react";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+import { db } from "../firebase/firebase.init";
+import { doc, onSnapshot } from "firebase/firestore";
 
 export const AuthContext = createContext();
 
@@ -10,25 +17,39 @@ export default function AuthProvider({ children }) {
 
   useEffect(() => {
     const storedStudent = localStorage.getItem("loggedInStudent");
+
     if (storedStudent) {
-      setUser(JSON.parse(storedStudent));
+      const student = JSON.parse(storedStudent);
+      setUser(student);
+
+      // Listen to student Firestore document in real-time
+      const unsub = onSnapshot(doc(db, "students", student.id), (docSnap) => {
+        if (docSnap.exists()) {
+          const updatedStudent = { id: docSnap.id, ...docSnap.data() };
+          setUser(updatedStudent);
+          localStorage.setItem(
+            "loggedInStudent",
+            JSON.stringify(updatedStudent)
+          );
+        }
+      });
+
+      return () => unsub();
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    // Listen for Firebase Auth changes (for admins)
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        // Admin logged in
         setUser({ uid: currentUser.uid, email: currentUser.email });
       } else if (!storedStudent) {
-        // No admin, no student
         setUser(null);
       }
-      setLoading(false); // ✅ Done loading after checking Firebase auth
+      setLoading(false);
     });
 
-    // If student exists in localStorage but no Firebase auth (normal case), finish loading
     if (storedStudent && !auth.currentUser) setLoading(false);
 
-    return () => unsubscribe();
+    return () => unsubscribeAuth();
   }, [auth]);
 
   const signInUser = async (email, password) => {
@@ -38,7 +59,9 @@ export default function AuthProvider({ children }) {
   };
 
   const logOut = async () => {
-    await signOut(auth);
+    if (user?.uid) {
+      await signOut(auth);
+    }
     setUser(null);
     localStorage.removeItem("loggedInStudent");
   };

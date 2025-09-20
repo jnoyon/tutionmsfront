@@ -1,45 +1,67 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { toast, ToastContainer } from "react-toastify";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { AuthContext } from "../../firebase/AuthProvider";
 import { db } from "../../firebase/firebase.init";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 export default function StudentLogin() {
-  const { setUser } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [studentId, setStudentId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [canProceed, setCanProceed] = useState(false);
+
+  // Automatically navigate once isActive becomes true
+  useEffect(() => {
+    if (user?.isActive) {
+      setCanProceed(true);
+      navigate("/report");
+    } else if (user && !user.isActive) {
+      toast.info("অ্যাডমিন এখনও আপনার অ্যাকাউন্ট সক্রিয় করেননি");
+      setCanProceed(false);
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    if (!studentId) {
-      return toast.error("স্টুডেন্ট আইডি লিখুন");
-    }
+    if (!studentId) return toast.error("স্টুডেন্ট আইডি লিখুন");
 
     try {
-      const q = query(collection(db, "students"), where("studentId", "==", studentId));
+      setLoading(true);
+      const q = query(
+        collection(db, "students"),
+        where("studentId", "==", studentId)
+      );
       const snapshot = await getDocs(q);
 
       if (snapshot.empty) {
+        setLoading(false);
         return toast.error("স্টুডেন্ট আইডি পাওয়া যায়নি");
       }
 
       const student = snapshot.docs[0].data();
+      const studentData = { id: snapshot.docs[0].id, ...student };
 
-      // login success
-      setUser({ id: snapshot.docs[0].id, ...student });
+      // Set student in context
+      setUser(studentData);
 
-      // Save to localStorage for persistence
-      localStorage.setItem("loggedInStudent", JSON.stringify({ id: snapshot.docs[0].id, ...student }));
+      // Save to localStorage
+      localStorage.setItem("loggedInStudent", JSON.stringify(studentData));
 
-      toast.success("লগিন সফল!");
-      navigate("/report");
+      if (studentData.isActive) {
+        toast.success("লগিন সফল!");
+        navigate("/report");
+      } else {
+        toast.info("অ্যাডমিন এখনও আপনার অ্যাকাউন্ট সক্রিয় করেননি");
+      }
     } catch (err) {
       console.error(err);
       toast.error("লগিনে সমস্যা: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,9 +83,19 @@ export default function StudentLogin() {
           onChange={(e) => setStudentId(e.target.value)}
         />
 
-        <button className="btn btn-neutral mt-4" onClick={handleLogin}>
-          লগিন করুন
+        <button
+          className="btn btn-neutral mt-4"
+          onClick={handleLogin}
+          disabled={loading}
+        >
+          {loading ? "লগইন হচ্ছে..." : "লগিন করুন"}
         </button>
+
+        {!canProceed && user && !user.isActive && (
+          <p className="mt-3 text-red-600 font-medium">
+            ⚠️ অ্যাডমিন এখনও আপনার অ্যাকাউন্ট সক্রিয় করেননি
+          </p>
+        )}
       </fieldset>
     </div>
   );

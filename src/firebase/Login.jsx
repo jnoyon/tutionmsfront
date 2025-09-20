@@ -17,31 +17,37 @@ export default function Login() {
   const from = location.state?.from?.pathname || "/report";
 
   const handleLogin = async (e) => {
-  e.preventDefault();
-  try {
-    if (role === "student") {
-      const q = query(collection(db, "students"), where("studentId", "==", studentId));
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) return toast.error("Invalid Student ID");
+    e.preventDefault();
+    try {
+      if (role === "student") {
+        const q = query(
+          collection(db, "students"),
+          where("studentId", "==", studentId)
+        );
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) return toast.error("Invalid Student ID");
 
-      const studentData = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-      setUser(studentData);
+        const studentData = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
 
-      // ✅ Save to localStorage
-      localStorage.setItem("loggedInStudent", JSON.stringify(studentData));
+        // Set user in context
+        setUser(studentData);
 
-      toast.success("Student logged in successfully!");
-      navigate("/report");
-    } else {
-      await signInUser(email, password);
-      toast.success("Admin logged in successfully!");
-      navigate("/");
+        // Save to localStorage
+        localStorage.setItem("loggedInStudent", JSON.stringify(studentData));
+
+        toast.success("Student logged in successfully!");
+        navigate(from); // Redirect after login
+      } else {
+        // Admin login
+        await signInUser(email, password);
+        toast.success("Admin logged in successfully!");
+        navigate("/");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Login failed: " + err.message);
     }
-  } catch (err) {
-    toast.error("Login failed: " + err.message);
-  }
-};
-
+  };
 
   return (
     <div className="hero bg-base-200 min-h-screen">
@@ -55,57 +61,55 @@ export default function Login() {
 
         <div className="card bg-base-100 w-full max-w-sm shadow-2xl">
           <form onSubmit={handleLogin} className="card-body">
-            <fieldset className="fieldset">
-              <label className="label">Role</label>
-              <select
-                className="select select-bordered w-full mb-4"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <option value="student">Student</option>
-                <option value="admin">Admin/CR</option>
-              </select>
+            <label className="label">Role</label>
+            <select
+              className="select select-bordered w-full mb-4"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <option value="student">Student</option>
+              <option value="admin">Admin/CR</option>
+            </select>
 
-              {role === "student" ? (
-                <>
-                  <label className="label">Student ID</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="Enter 6-digit ID"
-                    value={studentId}
-                    onChange={(e) => setStudentId(e.target.value)}
-                    required
-                  />
-                </>
-              ) : (
-                <>
-                  <label className="label">Email</label>
-                  <input
-                    type="email"
-                    className="input"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
+            {role === "student" ? (
+              <>
+                <label className="label">Student ID</label>
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="Enter 6-digit ID"
+                  value={studentId}
+                  onChange={(e) => setStudentId(e.target.value)}
+                  required
+                />
+              </>
+            ) : (
+              <>
+                <label className="label">Email</label>
+                <input
+                  type="email"
+                  className="input"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
 
-                  <label className="label">Password</label>
-                  <input
-                    type="password"
-                    className="input"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </>
-              )}
+                <label className="label">Password</label>
+                <input
+                  type="password"
+                  className="input"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </>
+            )}
 
-              <button type="submit" className="btn btn-neutral mt-4">
-                লগিন করুন
-              </button>
-            </fieldset>
+            <button type="submit" className="btn btn-neutral mt-4">
+              লগিন করুন
+            </button>
           </form>
         </div>
       </div>

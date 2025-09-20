@@ -18,7 +18,7 @@ export default function Home() {
         {user && <Noticeboard></Noticeboard>}
         <LeaderboardSection></LeaderboardSection>
         {!user && <LoginSection></LoginSection>}
-        <FAQ></FAQ>
+        
       </div>
       
     </div>
