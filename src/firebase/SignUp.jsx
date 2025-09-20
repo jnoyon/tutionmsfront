@@ -38,7 +38,7 @@ export default function SignUp() {
       // Set fee based on batch
       if (value === "ফোকাস") setMonthlyFee("600");
       else if (value === "ইন্টেন্সিভ") setMonthlyFee("1200");
-      else setMonthlyFee(""); // অন্যান্য or others
+      else setMonthlyFee("1000"); // অন্যান্য or others
     }
 
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -57,42 +57,52 @@ export default function SignUp() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!formData.batch) return toast.error("Please select a batch!");
+  if (!formData.batch) return toast.error("Please select a batch!");
 
-    try {
-      const q = query(
-        collection(db, "students"),
-        where("phone", "==", formData.phone)
-      );
-      const snapshot = await getDocs(q);
-      if (!snapshot.empty) {
-        return toast.error("Phone number already registered!");
-      }
+  // ✅ Normalize phone (remove spaces, leading +88)
+  let normalizedPhone = formData.phone.replace(/\s+/g, "");
+  if (normalizedPhone.startsWith("+88")) {
+    normalizedPhone = normalizedPhone.slice(3);
+  }
 
-      const newId = await generateStudentId();
-      setStudentId(newId);
-
-      await addDoc(collection(db, "students"), {
-        ...formData,
-        studentId: newId,
-        createdAt: serverTimestamp(),
-      });
-
-      document.getElementById("studentIdModal").showModal();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to register: " + err.message);
+  try {
+    // ✅ Check duplicate phone
+    const q = query(
+      collection(db, "students"),
+      where("phone", "==", normalizedPhone)
+    );
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      return toast.error("This phone number is already registered!");
     }
-  };
+
+    // ✅ Generate unique studentId
+    const newId = await generateStudentId();
+    setStudentId(newId);
+
+    // ✅ Save student
+    await addDoc(collection(db, "students"), {
+      ...formData,
+      phone: normalizedPhone, // save normalized phone
+      studentId: newId,
+      createdAt: serverTimestamp(),
+    });
+
+    document.getElementById("studentIdModal").showModal();
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to register: " + err.message);
+  }
+};
 
   return (
     <div className="hero bg-base-200 min-h-screen">
       <ToastContainer autoClose={2000} />
       <div className="card bg-base-100 w-full max-w-sm shadow-2xl mx-auto mt-10">
         <form onSubmit={handleSubmit} className="card-body">
-          <h2 className="text-2xl font-bold text-center mb-4">Sign Up</h2>
+          <h2 className="text-2xl font-bold text-center mb-4"> ভর্তি ফরম </h2>
 
           <label className="label">শিক্ষার্থীর নাম</label>
           <input

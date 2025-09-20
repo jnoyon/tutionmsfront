@@ -80,7 +80,7 @@ export default function Header() {
               <li className="menu-title flex items-center gap-2">
                 <FaBookOpenReader /> <span>শিক্ষার্থী</span>
               </li>
-              <li><Link to="/exam" onClick={closeDrawer}>পরীক্ষাসমূহ</Link></li>
+              <li><Link to="/quiz" onClick={closeDrawer}>পরীক্ষাসমূহ</Link></li>
               <li><Link to="/sheet" onClick={closeDrawer}>লেকচারশীট</Link></li>
               <li><Link to="/result" onClick={closeDrawer}>পরীক্ষার ফলাফল</Link></li>
               <li><Link to="/leaderboard" onClick={closeDrawer}>লিডারবোর্ড</Link></li>

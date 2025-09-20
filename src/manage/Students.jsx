@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase/firebase.init";
-import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { TbDisabled } from "react-icons/tb";
-import { MdOutlinePersonAddDisabled } from "react-icons/md";
-import { IoCheckmarkDoneCircle } from "react-icons/io5";
+import { FiDelete } from "react-icons/fi";
 
 export default function Students() {
   const [batch, setBatch] = useState(""); // selected batch
@@ -29,14 +35,26 @@ export default function Students() {
     return () => unsubscribe();
   }, [batch]);
 
-  const handleStatusToggle = async (studentId, currentStatus) => {
+  const handleStatusToggle = async (studentId, newStatus) => {
     try {
       const docRef = doc(db, "students", studentId);
-      await updateDoc(docRef, { isActive: !currentStatus });
-      toast.success("Status updated successfully!");
+      await updateDoc(docRef, { isActive: newStatus });
+      toast.success("Status updated!");
     } catch (err) {
       console.error(err);
       toast.error("Failed to update status: " + err.message);
+    }
+  };
+
+  const handleDelete = async (studentId) => {
+    if (!window.confirm("আপনি কি নিশ্চিতভাবে এই শিক্ষার্থীকে মুছতে চান?")) return;
+
+    try {
+      await deleteDoc(doc(db, "students", studentId));
+      toast.success("Student deleted successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete student: " + err.message);
     }
   };
 
@@ -61,7 +79,7 @@ export default function Students() {
           <option value="">-- ব্যাচ নির্বাচন করুন --</option>
           <option value="ইন্টেন্সিভ">ইন্টেন্সিভ</option>
           <option value="ফোকাস">ফোকাস</option>
-          <option value="অন্যান্য">অন্যান্য</option>
+          <option value="কম্পিউটার">কম্পিউটার</option>
         </select>
       </div>
 
@@ -72,35 +90,43 @@ export default function Students() {
         <p className="text-gray-500">কোনও শিক্ষার্থী নেই এই ব্যাচে।</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="table-auto border-collapse border border-gray-400 w-full">
+          <table className="table-auto border-collapse border border-gray-400 w-full text-sm">
             <thead>
               <tr className="bg-gray-200">
                 <th className="border border-gray-300 p-1">আইডি</th>
                 <th className="border border-gray-300 p-1">নাম</th>
                 <th className="border border-gray-300 p-1">মোবাইল</th>
-                <th className="border border-gray-300 p-1">স্ট্যাটাস</th>
+                <th className="border border-gray-300 p-1">অ্যাক্টিভ</th>
                 <th className="border border-gray-300 p-1">ফি</th>
-                <th className="border border-gray-300 p-">* </th>
+                <th className="border border-gray-300 p-1 text-center">*</th>
               </tr>
             </thead>
             <tbody>
               {students.map((student) => {
-                const studentFee = student.fees?.reduce((a, f) => a + (f.amount || 0), 0) || 0;
+                const studentFee =
+                  student.fees?.reduce((a, f) => a + (f.amount || 0), 0) || 0;
                 return (
                   <tr key={student.id}>
                     <td className="border border-gray-300 p-2">{student.studentId}</td>
                     <td className="border border-gray-300 p-2">{student.name}</td>
                     <td className="border border-gray-300 p-2">{student.phone}</td>
                     <td className="border border-gray-300 p-2 text-center">
-                      {student.isActive ? <IoCheckmarkDoneCircle className="text-success text-xl mx-auto"></IoCheckmarkDoneCircle> : <MdOutlinePersonAddDisabled className="text-error text-xl mx-auto"></MdOutlinePersonAddDisabled>}
+                      <input
+                        type="checkbox"
+                        className="toggle toggle-success"
+                        checked={student.isActive}
+                        onChange={(e) =>
+                          handleStatusToggle(student.id, e.target.checked)
+                        }
+                      />
                     </td>
                     <td className="border border-gray-300 p-2">{studentFee}</td>
-                    <td className="border border-gray-300 p-2">
+                    <td className="border border-gray-300 p-2 text-center">
                       <button
-                        className={`btn btn-sm ${student.isActive ? "btn-error" : "btn-success"}`}
-                        onClick={() => handleStatusToggle(student.id, student.isActive)}
+                        className="btn btn-sm btn-outline btn-error"
+                        onClick={() => handleDelete(student.id)}
                       >
-                        {student.isActive ? <MdOutlinePersonAddDisabled></MdOutlinePersonAddDisabled> :  <IoCheckmarkDoneCircle></IoCheckmarkDoneCircle>}
+                        <FiDelete className="text-lg" />
                       </button>
                     </td>
                   </tr>

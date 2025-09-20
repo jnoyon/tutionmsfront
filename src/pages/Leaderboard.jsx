@@ -37,7 +37,7 @@ export default function Leaderboard() {
           <option value="">-- ব্যাচ নির্বাচন করুন --</option>
           <option value="ইন্টেন্সিভ">ইন্টেন্সিভ</option>
           <option value="ফোকাস">ফোকাস</option>
-          <option value="অ‌ন্যান্য">অ‌ন্যান্য</option>
+          <option value="কম্পিউটার">কম্পিউটার</option>
         </select>
       </div>
 
@@ -58,12 +58,12 @@ export default function Leaderboard() {
                 className="w-24 h-24 rounded-full object-cover mb-4"
               />
               <h2 className="text-xl font-bold mb-1">{student.name}</h2>
-              <p className="text-gray-600 mb-1">Batch: {student.batch}</p>
+              <p className="text-gray-600 mb-1"> {student.address}</p>
               <p className="text-gray-600 mb-1">
-                Institute: {student.instituteName || "---"}
+                 {student.instituteName}
               </p>
-              <p className="text-blue-600 font-semibold text-lg">
-                Marks: {student.mark || 0}
+              <p className="text-blue-600 ">
+                প্রাপ্ত নম্বর: {student.mark || 0}
               </p>
             </div>
           ))}

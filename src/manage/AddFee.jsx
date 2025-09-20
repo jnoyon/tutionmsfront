@@ -85,7 +85,7 @@ export default function AddFee() {
         >
           <option value="ইন্টেন্সিভ">ইন্টেন্সিভ</option>
           <option value="ফোকাস">ফোকাস</option>
-          <option value="অন্যান্য">অন্যান্য</option>
+          <option value="কম্পিউটার">কম্পিউটার</option>
         </select>
       </div>
 

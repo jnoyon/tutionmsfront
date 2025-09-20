@@ -67,7 +67,7 @@ export default function Noticeboard() {
         <span className="loading loading-bars loading-xl"></span>
       </div>
       ) : notices.length === 0 ? (
-        <p>কোনও নোটিশ নেই।</p>
+        <p className="p-2">কোনও নোটিশ নেই।</p>
       ) : (
         <div className="flex flex-col gap-4">
           
@@ -92,7 +92,7 @@ export default function Noticeboard() {
                   />
                 </svg>
               </div>
-              <div className="timeline-end text-lg timeline-box">
+              <div className="timeline-end text-sm timeline-box">
                 {n.text}  
               </div>
               <hr />

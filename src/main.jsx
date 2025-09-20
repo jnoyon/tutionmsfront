@@ -12,7 +12,6 @@ import AddAttendance from './manage/AddAttendance.jsx'
 import AddExam from './manage/AddExam.jsx'
 import AddNotice from './manage/AddNotice.jsx'
 import AddResult from './manage/AddResult.jsx'
-import Exam from './pages/Exam.jsx'
 import Sheet from './pages/Sheet.jsx'
 import Result from './pages/Result.jsx'
 import Profile from './pages/Profile.jsx'
@@ -21,6 +20,11 @@ import Leaderboard from './pages/Leaderboard.jsx'
 import Login from './firebase/Login.jsx'
 import Students from './manage/Students.jsx'
 import AdminRoute from './firebase/AdminRoute.jsx'
+import QuizList from './quiz/QuizList.jsx'
+import QuizPage from './quiz/Quizpage.jsx'
+import AddQuiz from './quiz/AddQuiz.jsx'
+import InsentiveBatch from './pages/InsentiveBatch.jsx'
+import FocusBatch from './pages/FocusBatch.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -30,10 +34,18 @@ createRoot(document.getElementById('root')).render(
         <Route path='/' element={<MainLayout></MainLayout>}>
           <Route index element={<Home></Home>} ></Route>
           <Route path='/signup' element={<SignUp></SignUp>} ></Route>
+
+          <Route path='/intensive' element={<InsentiveBatch></InsentiveBatch>}></Route>
+          <Route path='/focus' element={<FocusBatch></FocusBatch>}></Route>
+
           <Route path='/profile' element={<PrivateRoute><Profile></Profile></PrivateRoute>}> </Route>
           <Route path='/login' element={<Login></Login>}> </Route>
           <Route path='/report' element={<PrivateRoute><Report></Report></PrivateRoute>}> </Route>
-          <Route path='/exam' element={<PrivateRoute><Exam></Exam></PrivateRoute>}> </Route>
+          
+          <Route path='/quiz' element={<PrivateRoute><QuizList></QuizList></PrivateRoute>}> </Route>
+          <Route path='/quizpage' element={<PrivateRoute> <QuizPage></QuizPage> </PrivateRoute>}> </Route>
+          <Route path='/add-quiz' element={<AdminRoute><AddQuiz></AddQuiz></AdminRoute>}> </Route>
+
           <Route path='/result' element={<PrivateRoute><Result></Result></PrivateRoute>}> </Route>
           <Route path='/sheet' element={<PrivateRoute><Sheet></Sheet></PrivateRoute>}> </Route>
           <Route path='/leaderboard' element={<PrivateRoute><Leaderboard></Leaderboard></PrivateRoute>}> </Route>
