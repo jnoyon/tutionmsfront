@@ -2,6 +2,6 @@ import React from 'react'
 
 export default function Sheet() {
   return (
-    <div>Sheet</div>
+    <div>খুব শীঘ্রই আপডেট করা হবে।</div>
   )
 }

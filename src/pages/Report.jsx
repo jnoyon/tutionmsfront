@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { db } from "../firebase/firebase.init";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { AuthContext } from "../firebase/AuthProvider";
@@ -8,16 +8,43 @@ import "react-toastify/dist/ReactToastify.css";
 export default function Report() {
   const { user } = useContext(AuthContext);
   const [student, setStudent] = useState(null);
+  const [quizInfo, setQuizInfo] = useState({}); // { quizId: { title, highestScore } }
 
   useEffect(() => {
     if (!user?.studentId) return;
 
     const fetchStudent = async () => {
       try {
-        const q = query(collection(db, "students"), where("studentId", "==", user.studentId));
+        const q = query(
+          collection(db, "students"),
+          where("studentId", "==", user.studentId)
+        );
         const snapshot = await getDocs(q);
         if (!snapshot.empty) {
-          setStudent({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() });
+          const studentData = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+          setStudent(studentData);
+
+          // Fetch highest scores for quizzes
+          const quizIds = studentData.quizMarks ? Object.keys(studentData.quizMarks) : [];
+          const info = {};
+          for (let qId of quizIds) {
+            const quizSnap = await getDocs(
+              query(collection(db, "quizzes"), where("__name__", "==", qId))
+            );
+            const quizTitle = !quizSnap.empty ? quizSnap.docs[0].data().title : qId;
+
+            // Get highest score
+            const resultSnap = await getDocs(
+              query(collection(db, "quizResults"), where("quizId", "==", qId))
+            );
+            let highest = 0;
+            resultSnap.forEach((doc) => {
+              if (doc.data().score > highest) highest = doc.data().score;
+            });
+
+            info[qId] = { title: quizTitle, highestScore: highest };
+          }
+          setQuizInfo(info);
         } else {
           toast.error("Student not found!");
         }
@@ -39,6 +66,7 @@ export default function Report() {
 
   const attendanceDates = student.attendance ? Object.entries(student.attendance) : [];
   const fees = student.fees || [];
+  const quizMarks = student.quizMarks || {};
 
   const formatDate = (timestamp) => {
     if (!timestamp) return "---";
@@ -71,11 +99,9 @@ export default function Report() {
         </div>
       </div>
 
-      {/* Attendance */}
+      {/* Attendance Section */}
       <div className="border border-gray-300 rounded-lg p-3 bg-white mx-auto w-11/12 mt-5">
-        <div className="text-center border-b border-gray-300 py-2 mb-2">
-          <b>উপস্থিতি</b>
-        </div>
+        <div className="text-center border-b border-gray-300 py-2 mb-2"><b>উপস্থিতি</b></div>
         <div className="flex flex-wrap gap-2">
           {attendanceDates.length === 0 && <p className="text-gray-500">কোনও উপস্থিতি তথ্য নেই</p>}
           {attendanceDates.map(([date, record], index) => (
@@ -93,11 +119,9 @@ export default function Report() {
         </div>
       </div>
 
-      {/* Assignment */}
+      {/* Assignments Section */}
       <div className="border border-gray-300 rounded-lg p-3 bg-white mx-auto w-11/12 mt-5">
-        <div className="text-center border-b border-gray-300 py-2 mb-2">
-          <b>এসাইনমেন্ট রিপোর্ট</b>
-        </div>
+        <div className="text-center border-b border-gray-300 py-2 mb-2"><b>এসাইনমেন্ট রিপোর্ট</b></div>
         <div className="flex flex-wrap gap-2">
           {attendanceDates.length === 0 && <p className="text-gray-500">কোনও এসাইনমেন্ট তথ্য নেই</p>}
           {attendanceDates.map(([date, record], index) => (
@@ -115,11 +139,42 @@ export default function Report() {
         </div>
       </div>
 
-      {/* Fees */}
+      {/* Quiz Marks Section */}
+      <div className="bg-white mx-auto w-11/12 mt-5">
+        {Object.keys(quizMarks).length === 0 ? (
+          <p className="text-gray-500 text-center">কোনও কুইজ দেওয়া হয়নি</p>
+        ) : (
+          <table className="table-auto border-collapse border border-gray-400 w-full text-sm md:text-base">
+            <thead>
+              <tr>
+                <th colSpan={3} className="p-2"> কুইজ রিপোর্ট </th>
+              </tr>
+              <tr>
+                <th className="border border-gray-300 p-1.5">কুইজ নাম</th>
+                <th className="border border-gray-300 p-1.5">প্রাপ্ত নাম্বার</th>
+                <th className="border border-gray-300 p-1.5">সর্বোচ্চ নাম্বার</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(quizMarks).map(([quizId, mark]) => (
+                <tr key={quizId}>
+                  <td className="border border-gray-300 p-1.5">
+                    {quizInfo[quizId]?.title || quizId}
+                  </td>
+                  <td className="border border-gray-300 p-1.5">{mark}</td>
+                  <td className="border border-gray-300 p-1.5">
+                    {quizInfo[quizId]?.highestScore ?? "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Fees Section */}
       <div className="border border-gray-300 rounded-lg p-3 bg-white mx-auto w-11/12 mt-5">
-        <div className="text-center border-b border-gray-300 py-2 mb-2">
-          <b>পেমেন্ট রিপোর্ট</b>
-        </div>
+        <div className="text-center border-b border-gray-300 py-2 mb-2"><b>পেমেন্ট রিপোর্ট</b></div>
         {fees.length === 0 ? (
           <p className="text-gray-500 text-center">কোনও ফি জমা হয়নি</p>
         ) : (

@@ -21,10 +21,13 @@ import Login from './firebase/Login.jsx'
 import Students from './manage/Students.jsx'
 import AdminRoute from './firebase/AdminRoute.jsx'
 import QuizList from './quiz/QuizList.jsx'
-import QuizPage from './quiz/Quizpage.jsx'
+import QuizPage from './quiz/QuizPage.jsx'
 import AddQuiz from './quiz/AddQuiz.jsx'
 import InsentiveBatch from './pages/InsentiveBatch.jsx'
 import FocusBatch from './pages/FocusBatch.jsx'
+import QuizResult from './quiz/QuizResult.jsx'
+import ManageQuiz from './quiz/ManageQuiz.jsx'
+import EditQuiz from './quiz/EditQuiz.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -43,9 +46,11 @@ createRoot(document.getElementById('root')).render(
           <Route path='/report' element={<PrivateRoute><Report></Report></PrivateRoute>}> </Route>
           
           <Route path='/quiz' element={<PrivateRoute><QuizList></QuizList></PrivateRoute>}> </Route>
-          <Route path='/quizpage' element={<PrivateRoute> <QuizPage></QuizPage> </PrivateRoute>}> </Route>
+          <Route path='/quiz/:quizId' element={<PrivateRoute> <QuizPage></QuizPage> </PrivateRoute>}> </Route>
+          <Route path='/result' element={<PrivateRoute> <QuizResult></QuizResult> </PrivateRoute>}> </Route>
           <Route path='/add-quiz' element={<AdminRoute><AddQuiz></AddQuiz></AdminRoute>}> </Route>
-
+          <Route path='/manage-quiz' element={<AdminRoute><ManageQuiz></ManageQuiz></AdminRoute>}> </Route>
+          <Route path='/edit-quiz/:quizId' element={<AdminRoute><EditQuiz></EditQuiz></AdminRoute>}> </Route>
           <Route path='/result' element={<PrivateRoute><Result></Result></PrivateRoute>}> </Route>
           <Route path='/sheet' element={<PrivateRoute><Sheet></Sheet></PrivateRoute>}> </Route>
           <Route path='/leaderboard' element={<PrivateRoute><Leaderboard></Leaderboard></PrivateRoute>}> </Route>

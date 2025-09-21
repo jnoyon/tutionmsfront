@@ -13,7 +13,7 @@ export const AuthContext = createContext();
 export default function AuthProvider({ children }) {
   const auth = getAuth();
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true); // ✅ only for auth state
 
   useEffect(() => {
     const storedStudent = localStorage.getItem("loggedInStudent");
@@ -22,7 +22,7 @@ export default function AuthProvider({ children }) {
       const student = JSON.parse(storedStudent);
       setUser(student);
 
-      // Listen to student Firestore document in real-time
+      // listen silently, don't set global loading
       const unsub = onSnapshot(doc(db, "students", student.id), (docSnap) => {
         if (docSnap.exists()) {
           const updatedStudent = { id: docSnap.id, ...docSnap.data() };
@@ -34,20 +34,19 @@ export default function AuthProvider({ children }) {
         }
       });
 
+      setAuthLoading(false); // ✅ user already known from localStorage
       return () => unsub();
     }
 
-    // Listen for Firebase Auth changes (for admins)
+    // Firebase Auth listener (for admins)
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser({ uid: currentUser.uid, email: currentUser.email });
       } else if (!storedStudent) {
         setUser(null);
       }
-      setLoading(false);
+      setAuthLoading(false);
     });
-
-    if (storedStudent && !auth.currentUser) setLoading(false);
 
     return () => unsubscribeAuth();
   }, [auth]);
@@ -67,7 +66,9 @@ export default function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, signInUser, logOut, loading }}>
+    <AuthContext.Provider
+      value={{ user, setUser, signInUser, logOut, loading: authLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );

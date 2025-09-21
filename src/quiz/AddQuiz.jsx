@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 export default function AddQuiz() {
   const [title, setTitle] = useState("");
   const [batch, setBatch] = useState("ইন্টেন্সিভ");
+  const [duration, setDuration] = useState(5); // মিনিট
   const [questions, setQuestions] = useState([
     { question: "", options: ["", "", "", ""], answer: "" },
   ]);
@@ -16,14 +17,16 @@ export default function AddQuiz() {
     if (field === "question" || field === "answer") {
       updated[index][field] = value;
     } else {
-      // field is option index
       updated[index].options[field] = value;
     }
     setQuestions(updated);
   };
 
   const addQuestion = () => {
-    setQuestions((prev) => [...prev, { question: "", options: ["", "", "", ""], answer: "" }]);
+    setQuestions((prev) => [
+      ...prev,
+      { question: "", options: ["", "", "", ""], answer: "" },
+    ]);
   };
 
   const removeQuestion = (index) => {
@@ -33,23 +36,27 @@ export default function AddQuiz() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!title.trim()) return toast.error("কুইজের শিরোনাম লিখুন");
+    if (!duration || duration <= 0) return toast.error("সময় লিখুন");
+
     for (let q of questions) {
       if (!q.question.trim()) return toast.error("সব প্রশ্ন পূরণ করুন");
       if (!q.answer.trim()) return toast.error("সব প্রশ্নের সঠিক উত্তর নির্বাচন করুন");
-      if (q.options.some((opt) => !opt.trim())) return toast.error("সব অপশন পূরণ করুন");
+      if (q.options.some((opt) => !opt.trim()))
+        return toast.error("সব অপশন পূরণ করুন");
     }
 
     try {
       await addDoc(collection(db, "quizzes"), {
         title,
         batch,
+        duration, // মিনিটে সময় সেভ করব
         questions,
         createdAt: new Date(),
       });
       toast.success("কুইজ সফলভাবে তৈরি হয়েছে!");
       setTitle("");
+      setDuration(5);
       setQuestions([{ question: "", options: ["", "", "", ""], answer: "" }]);
     } catch (err) {
       console.error(err);
@@ -83,6 +90,15 @@ export default function AddQuiz() {
             <option value="কম্পিউটার">কম্পিউটার</option>
           </select>
 
+          <label className="label">সময় (মিনিটে)</label>
+          <input
+            type="number"
+            min="1"
+            className="input w-full mb-4"
+            value={duration}
+            onChange={(e) => setDuration(Number(e.target.value))}
+          />
+
           {questions.map((q, idx) => (
             <div key={idx} className="border p-3 rounded-md mb-3 space-y-2">
               <div className="flex justify-between items-center">
@@ -97,12 +113,15 @@ export default function AddQuiz() {
                   </button>
                 )}
               </div>
+
               <input
                 type="text"
                 placeholder="প্রশ্ন লিখুন"
                 className="input w-full"
                 value={q.question}
-                onChange={(e) => handleQuestionChange(idx, "question", e.target.value)}
+                onChange={(e) =>
+                  handleQuestionChange(idx, "question", e.target.value)
+                }
               />
 
               <div className="grid grid-cols-2 gap-2">
@@ -113,7 +132,9 @@ export default function AddQuiz() {
                     placeholder={`অপশন ${oidx + 1}`}
                     className="input w-full"
                     value={opt}
-                    onChange={(e) => handleQuestionChange(idx, oidx, e.target.value)}
+                    onChange={(e) =>
+                      handleQuestionChange(idx, oidx, e.target.value)
+                    }
                   />
                 ))}
               </div>
@@ -122,7 +143,9 @@ export default function AddQuiz() {
               <select
                 className="select select-bordered w-full"
                 value={q.answer}
-                onChange={(e) => handleQuestionChange(idx, "answer", e.target.value)}
+                onChange={(e) =>
+                  handleQuestionChange(idx, "answer", e.target.value)
+                }
               >
                 <option value="">সিলেক্ট করুন</option>
                 {q.options.map((opt, oidx) => (
@@ -134,7 +157,11 @@ export default function AddQuiz() {
             </div>
           ))}
 
-          <button type="button" className="btn btn-neutral" onClick={addQuestion}>
+          <button
+            type="button"
+            className="btn btn-neutral"
+            onClick={addQuestion}
+          >
             নতুন প্রশ্ন যোগ করুন
           </button>
 
