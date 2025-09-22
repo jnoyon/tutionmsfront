@@ -6,11 +6,23 @@ import "react-toastify/dist/ReactToastify.css";
 
 export default function AddQuiz() {
   const [title, setTitle] = useState("");
-  const [batch, setBatch] = useState("ইন্টেন্সিভ");
-  const [duration, setDuration] = useState(5); // মিনিট
+  const [batches, setBatches] = useState([]); // ✅ array
+  const [syllabus, setSyllabus] = useState("");
+  const [subject, setSubject] = useState("");
+  const [chapter, setChapter] = useState("");
+  const [duration, setDuration] = useState(5);
+  const [isActive, setIsActive] = useState(true);
   const [questions, setQuestions] = useState([
     { question: "", options: ["", "", "", ""], answer: "" },
   ]);
+
+  const handleBatchChange = (batchName) => {
+    setBatches((prev) =>
+      prev.includes(batchName)
+        ? prev.filter((b) => b !== batchName) // remove
+        : [...prev, batchName] // add
+    );
+  };
 
   const handleQuestionChange = (index, field, value) => {
     const updated = [...questions];
@@ -37,6 +49,10 @@ export default function AddQuiz() {
     e.preventDefault();
 
     if (!title.trim()) return toast.error("কুইজের শিরোনাম লিখুন");
+    if (!syllabus.trim()) return toast.error("সিলেবাস লিখুন");
+    if (!subject.trim()) return toast.error("বিষয় লিখুন");
+    if (!chapter.trim()) return toast.error("অধ্যায় লিখুন");
+    if (batches.length === 0) return toast.error("অন্তত একটি ব্যাচ নির্বাচন করুন");
     if (!duration || duration <= 0) return toast.error("সময় লিখুন");
 
     for (let q of questions) {
@@ -49,14 +65,23 @@ export default function AddQuiz() {
     try {
       await addDoc(collection(db, "quizzes"), {
         title,
-        batch,
-        duration, // মিনিটে সময় সেভ করব
+        syllabus,
+        subject,
+        chapter,
+        batches, // ✅ array save
+        duration,
+        isActive,
         questions,
         createdAt: new Date(),
       });
       toast.success("কুইজ সফলভাবে তৈরি হয়েছে!");
       setTitle("");
+      setSyllabus("");
+      setSubject("");
+      setChapter("");
+      setBatches([]);
       setDuration(5);
+      setIsActive(true);
       setQuestions([{ question: "", options: ["", "", "", ""], answer: "" }]);
     } catch (err) {
       console.error(err);
@@ -71,6 +96,7 @@ export default function AddQuiz() {
         <fieldset className="fieldset bg-base-200 border-base-300 rounded-box p-4">
           <legend className="fieldset-legend">নতুন কুইজ তৈরি করুন</legend>
 
+          {/* Title */}
           <label className="label">কুইজ শিরোনাম</label>
           <input
             type="text"
@@ -79,17 +105,50 @@ export default function AddQuiz() {
             onChange={(e) => setTitle(e.target.value)}
           />
 
-          <label className="label">ব্যাচ</label>
-          <select
-            className="select select-bordered w-full mb-4"
-            value={batch}
-            onChange={(e) => setBatch(e.target.value)}
-          >
-            <option value="ইন্টেন্সিভ">ইন্টেন্সিভ</option>
-            <option value="ফোকাস">ফোকাস</option>
-            <option value="কম্পিউটার">কম্পিউটার</option>
-          </select>
+          {/* Syllabus / Subject / Chapter */}
+          <label className="label">সিলেবাস</label>
+          <input
+            type="text"
+            className="input w-full"
+            value={syllabus}
+            onChange={(e) => setSyllabus(e.target.value)}
+          />
 
+          <label className="label">বিষয়</label>
+          <input
+            type="text"
+            className="input w-full"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+          />
+
+          <label className="label">অধ্যায়</label>
+          <input
+            type="text"
+            className="input w-full"
+            value={chapter}
+            onChange={(e) => setChapter(e.target.value)}
+          />
+
+          {/* ✅ Batch Checkboxes */}
+          <div className="flex items-center gap-2 mt-2 border border-gray-300 rounded-sm bg-white p-2">
+            <label className="label">ব্যাচ</label>
+          <div className="flex flex-col sm:flex-row gap-2">
+            {["ইন্টেন্সিভ", "ফোকাস", "কম্পিউটার"].map((batchName) => (
+              <label key={batchName} className="cursor-pointer flex items-center gap-2 ">
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-accent"
+                  checked={batches.includes(batchName)}
+                  onChange={() => handleBatchChange(batchName)}
+                />
+                <span>{batchName}</span>
+              </label>
+            ))}
+          </div>
+          </div>
+
+          {/* Duration */}
           <label className="label">সময় (মিনিটে)</label>
           <input
             type="number"
@@ -99,6 +158,18 @@ export default function AddQuiz() {
             onChange={(e) => setDuration(Number(e.target.value))}
           />
 
+          {/* Active / Inactive */}
+          <label className="label">কুইজ চালু আছে?</label>
+          <select
+            className="select select-bordered w-full mb-4"
+            value={isActive ? "true" : "false"}
+            onChange={(e) => setIsActive(e.target.value === "true")}
+          >
+            <option value="true">হ্যাঁ</option>
+            <option value="false">না</option>
+          </select>
+
+          {/* Questions */}
           {questions.map((q, idx) => (
             <div key={idx} className="border p-3 rounded-md mb-3 space-y-2">
               <div className="flex justify-between items-center">

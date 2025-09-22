@@ -4,6 +4,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { AuthContext } from "../firebase/AuthProvider";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Link } from "react-router";
 
 export default function Report() {
   const { user } = useContext(AuthContext);
@@ -15,39 +16,53 @@ export default function Report() {
 
     const fetchStudent = async () => {
       try {
+        // Fetch student info
         const q = query(
           collection(db, "students"),
           where("studentId", "==", user.studentId)
         );
         const snapshot = await getDocs(q);
-        if (!snapshot.empty) {
-          const studentData = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-          setStudent(studentData);
+        if (snapshot.empty) {
+          toast.error("Student not found!");
+          return;
+        }
 
-          // Fetch highest scores for quizzes
-          const quizIds = studentData.quizMarks ? Object.keys(studentData.quizMarks) : [];
-          const info = {};
-          for (let qId of quizIds) {
+        const studentData = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+
+        // Fetch all quiz results for this student
+        const resultsSnap = await getDocs(
+          query(collection(db, "quizResults"), where("studentId", "==", studentData.studentId))
+        );
+
+        const quizMarksUpdated = {};
+        const info = {};
+
+        for (let docSnap of resultsSnap.docs) {
+          const data = docSnap.data();
+          quizMarksUpdated[data.quizId] = data.score;
+
+          if (!info[data.quizId]) {
+            // fetch quiz title
             const quizSnap = await getDocs(
-              query(collection(db, "quizzes"), where("__name__", "==", qId))
+              query(collection(db, "quizzes"), where("__name__", "==", data.quizId))
             );
-            const quizTitle = !quizSnap.empty ? quizSnap.docs[0].data().title : qId;
+            const title = !quizSnap.empty ? quizSnap.docs[0].data().title : data.quizId;
 
-            // Get highest score
-            const resultSnap = await getDocs(
-              query(collection(db, "quizResults"), where("quizId", "==", qId))
+            // compute highest score for this quiz
+            const allResultsSnap = await getDocs(
+              query(collection(db, "quizResults"), where("quizId", "==", data.quizId))
             );
             let highest = 0;
-            resultSnap.forEach((doc) => {
-              if (doc.data().score > highest) highest = doc.data().score;
+            allResultsSnap.forEach(r => {
+              if (r.data().score > highest) highest = r.data().score;
             });
 
-            info[qId] = { title: quizTitle, highestScore: highest };
+            info[data.quizId] = { title, highestScore: highest };
           }
-          setQuizInfo(info);
-        } else {
-          toast.error("Student not found!");
         }
+
+        setQuizInfo(info);
+        setStudent({ ...studentData, quizMarks: quizMarksUpdated });
       } catch (err) {
         console.error(err);
         toast.error("Failed to fetch student data");
@@ -95,7 +110,8 @@ export default function Report() {
           <p><strong>পিতার নাম:</strong> {student.fatherName}</p>
           <p><strong>ঠিকানা:</strong> {student.address}</p>
           <p><strong>শিক্ষা প্রতিষ্ঠান:</strong> {student.instituteName}</p>
-          <p><strong>ভর্তি অবস্থা:</strong> {student.isActive ? "Confirmed" : "Pending"}</p>
+          <p><strong>ভর্তি অবস্থা:</strong> {student.isActive ? "একটিভ" : "ইন-একটিভ"}</p>
+          <Link className="btn btn-sm my-2 btn-primary" to='/profile'> তথ্য পরিবর্তন করুন </Link>
         </div>
       </div>
 
@@ -111,26 +127,6 @@ export default function Report() {
                 record.present ? "bg-green-600" : "bg-red-600"
               }`}
               onClick={() => toast.info(`তারিখ: ${date} - উপস্থিতি: ${record.present ? "হ্যাঁ" : "না"}`)}
-              title={date}
-            >
-              {index + 1}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Assignments Section */}
-      <div className="border border-gray-300 rounded-lg p-3 bg-white mx-auto w-11/12 mt-5">
-        <div className="text-center border-b border-gray-300 py-2 mb-2"><b>এসাইনমেন্ট রিপোর্ট</b></div>
-        <div className="flex flex-wrap gap-2">
-          {attendanceDates.length === 0 && <p className="text-gray-500">কোনও এসাইনমেন্ট তথ্য নেই</p>}
-          {attendanceDates.map(([date, record], index) => (
-            <div
-              key={date}
-              className={`w-8 h-8 rounded-md flex items-center justify-center text-white font-bold cursor-pointer ${
-                record.assignment ? "bg-green-600" : "bg-red-600"
-              }`}
-              onClick={() => toast.info(`তারিখ: ${date} - এসাইনমেন্ট: ${record.assignment ? "হ্যাঁ" : "না"}`)}
               title={date}
             >
               {index + 1}
@@ -158,13 +154,9 @@ export default function Report() {
             <tbody>
               {Object.entries(quizMarks).map(([quizId, mark]) => (
                 <tr key={quizId}>
-                  <td className="border border-gray-300 p-1.5">
-                    {quizInfo[quizId]?.title || quizId}
-                  </td>
+                  <td className="border border-gray-300 p-1.5">{quizInfo[quizId]?.title || quizId}</td>
                   <td className="border border-gray-300 p-1.5">{mark}</td>
-                  <td className="border border-gray-300 p-1.5">
-                    {quizInfo[quizId]?.highestScore ?? "—"}
-                  </td>
+                  <td className="border border-gray-300 p-1.5">{quizInfo[quizId]?.highestScore ?? "—"}</td>
                 </tr>
               ))}
             </tbody>

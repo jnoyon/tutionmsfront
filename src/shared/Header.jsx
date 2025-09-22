@@ -69,8 +69,10 @@ export default function Header() {
               <li><Link to="/add-fee" onClick={closeDrawer}>ফি যুক্ত করুন</Link></li>
               <li><Link to="/add-attendance" onClick={closeDrawer}>উপস্থিতি যুক্ত করুন</Link></li>
               <li><Link to="/add-quiz" onClick={closeDrawer}>পরীক্ষা নিন</Link></li>
+              <li><Link to="/add-video" onClick={closeDrawer}>ভিডিও যুক্ত করুন</Link></li>
               <li><Link to="/manage-quiz" onClick={closeDrawer}>কুইজ নিয়ন্ত্রন করুন</Link></li>
               <li><Link to="/result" onClick={closeDrawer}>পরীক্ষার ফলাফল</Link></li>
+              <li><Link to="/recentresults" onClick={closeDrawer}>সকল ফলাফল</Link></li>
               <div className="divider"></div>
             </>
           )}

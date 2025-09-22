@@ -14,7 +14,7 @@ export default function InsentiveBatch() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold">এইচএসসি ইন্টেন্সিভ ব্যাচ</h2>
-                <p className="text-sm opacity-80 mt-1">বেসিক থেকে সন্তোযজনক প্রস্তুতি</p>
+                <p className="text-sm opacity-80 mt-1">বেসিক থেকে ইন্টারমেডিয়েট</p>
               </div>
             </div>
 

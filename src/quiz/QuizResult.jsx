@@ -14,45 +14,71 @@ import "react-toastify/dist/ReactToastify.css";
 
 export default function QuizResult() {
   const { user } = useContext(AuthContext);
-  const [batch, setBatch] = useState("");
+
+  const [selectedBatches, setSelectedBatches] = useState([]);
   const [quizzes, setQuizzes] = useState([]);
   const [selectedQuiz, setSelectedQuiz] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch quizzes for selected batch
+  const batchOptions = ["ইন্টেন্সিভ", "ফোকাস", "কম্পিউটার"];
+
+  // Fetch quizzes whenever selected batches change
   useEffect(() => {
-    if (!batch) {
+    if (selectedBatches.length === 0) {
       setQuizzes([]);
+      setSelectedQuiz("");
+      setResults([]);
       return;
     }
-    const fetchQuizzes = async () => {
-      const q = query(collection(db, "quizzes"), where("batch", "==", batch));
-      const snap = await getDocs(q);
-      setQuizzes(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    };
-    fetchQuizzes();
-  }, [batch]);
 
-  // Fetch results for selected quiz
+    const fetchQuizzes = async () => {
+      try {
+        const q = query(
+          collection(db, "quizzes"),
+          where("batches", "array-contains-any", selectedBatches)
+        );
+        const snap = await getDocs(q);
+        setQuizzes(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        setSelectedQuiz("");
+        setResults([]);
+      } catch (err) {
+        console.error(err);
+        toast.error("কুইজ লোড করতে সমস্যা: " + err.message);
+      }
+    };
+
+    fetchQuizzes();
+  }, [selectedBatches]);
+
+  // Fetch results whenever selected quiz changes
   useEffect(() => {
     if (!selectedQuiz) {
       setResults([]);
       return;
     }
+
     const fetchResults = async () => {
       setLoading(true);
-      const q = query(
-        collection(db, "quizResults"),
-        where("quizId", "==", selectedQuiz)
-      );
-      const snap = await getDocs(q);
-      setResults(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      setLoading(false);
+      try {
+        const q = query(
+          collection(db, "quizResults"),
+          where("quizId", "==", selectedQuiz)
+        );
+        const snap = await getDocs(q);
+        setResults(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      } catch (err) {
+        console.error(err);
+        toast.error("রেজাল্ট লোড করতে সমস্যা: " + err.message);
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchResults();
   }, [selectedQuiz]);
 
+  // Delete a single result
   const deleteResult = async (id) => {
     try {
       await deleteDoc(doc(db, "quizResults", id));
@@ -74,27 +100,32 @@ export default function QuizResult() {
     <div className="w-11/12 mx-auto my-5">
       <ToastContainer autoClose={2000} />
 
-      {/* Batch Selector */}
+      {/* Batch Selection */}
       <div className="mb-4">
         <label className="label">ব্যাচ নির্বাচন করুন:</label>
-        <select
-          className="select select-bordered w-full"
-          value={batch}
-          onChange={(e) => {
-            setBatch(e.target.value);
-            setSelectedQuiz("");
-            setResults([]);
-          }}
-        >
-          <option value="">-- ব্যাচ নির্বাচন করুন --</option>
-          <option value="ইন্টেন্সিভ">ইন্টেন্সিভ</option>
-          <option value="ফোকাস">ফোকাস</option>
-          <option value="কম্পিউটার">কম্পিউটার</option>
-        </select>
+        <div className="flex gap-3 flex-wrap">
+          {batchOptions.map((batch) => (
+            <label key={batch} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-accent"
+                checked={selectedBatches.includes(batch)}
+                onChange={() => {
+                  setSelectedBatches((prev) =>
+                    prev.includes(batch)
+                      ? prev.filter((b) => b !== batch)
+                      : [...prev, batch]
+                  );
+                }}
+              />
+              {batch}
+            </label>
+          ))}
+        </div>
       </div>
 
-      {/* Quiz Selector */}
-      {batch && (
+      {/* Quiz Selection */}
+      {quizzes.length > 0 && (
         <div className="mb-4">
           <label className="label">কুইজ নির্বাচন করুন:</label>
           <select
@@ -134,7 +165,7 @@ export default function QuizResult() {
               {results.map((r) => (
                 <tr key={r.id}>
                   <td className="border border-gray-300 p-2">
-                    {r.userName || "অজানা"}
+                    {r.studentName || "অজানা"}
                   </td>
                   <td className="border border-gray-300 p-2">
                     {r.score}/{r.total}

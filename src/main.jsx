@@ -28,6 +28,9 @@ import FocusBatch from './pages/FocusBatch.jsx'
 import QuizResult from './quiz/QuizResult.jsx'
 import ManageQuiz from './quiz/ManageQuiz.jsx'
 import EditQuiz from './quiz/EditQuiz.jsx'
+import Videos from './pages/Videos.jsx'
+import RecentQuiz from './quiz/RecentQuiz.jsx'
+import AddVideo from './manage/AddVideo.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -44,15 +47,18 @@ createRoot(document.getElementById('root')).render(
           <Route path='/profile' element={<PrivateRoute><Profile></Profile></PrivateRoute>}> </Route>
           <Route path='/login' element={<Login></Login>}> </Route>
           <Route path='/report' element={<PrivateRoute><Report></Report></PrivateRoute>}> </Route>
+          <Route path='/recentresults' element={<AdminRoute><RecentQuiz></RecentQuiz></AdminRoute>}> </Route>
           
           <Route path='/quiz' element={<PrivateRoute><QuizList></QuizList></PrivateRoute>}> </Route>
           <Route path='/quiz/:quizId' element={<PrivateRoute> <QuizPage></QuizPage> </PrivateRoute>}> </Route>
           <Route path='/result' element={<PrivateRoute> <QuizResult></QuizResult> </PrivateRoute>}> </Route>
           <Route path='/add-quiz' element={<AdminRoute><AddQuiz></AddQuiz></AdminRoute>}> </Route>
+          <Route path='/add-video' element={<AdminRoute><AddVideo></AddVideo></AdminRoute>}> </Route>
           <Route path='/manage-quiz' element={<AdminRoute><ManageQuiz></ManageQuiz></AdminRoute>}> </Route>
           <Route path='/edit-quiz/:quizId' element={<AdminRoute><EditQuiz></EditQuiz></AdminRoute>}> </Route>
           <Route path='/result' element={<PrivateRoute><Result></Result></PrivateRoute>}> </Route>
           <Route path='/sheet' element={<PrivateRoute><Sheet></Sheet></PrivateRoute>}> </Route>
+          <Route path='/videos' element={<PrivateRoute><Videos></Videos></PrivateRoute>}> </Route>
           <Route path='/leaderboard' element={<PrivateRoute><Leaderboard></Leaderboard></PrivateRoute>}> </Route>
           <Route path='/students' element={<AdminRoute><Students></Students></AdminRoute>}> </Route>
           <Route path='/add-fee' element={<AdminRoute><AddFee></AddFee></AdminRoute>}> </Route>

@@ -1,15 +1,17 @@
-import React from 'react';
-import { FaYoutube, FaLink } from 'react-icons/fa';
-import { Link } from 'react-router';
+import React from "react";
+import {  FaCalendarCheck, FaClock, FaLevelUpAlt, FaLink, FaPaperclip, FaYoutube } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa6";
+import { Link } from "react-router";
 
 export default function Focus() {
   return (
     <div className="bg-gray-50 min-h-screen p-4 sm:p-6 flex flex-col gap-6">
-
       {/* Header */}
       <div className="bg-white shadow-md rounded-lg p-4 text-center">
         <h2 className="text-gray-700 font-medium text-base sm:text-lg md:text-xl">
-          আপনি বর্তমানে <span className="font-bold text-accent">ফোকাস ব্যাচ</span> এ আছেন। <br />
+          আপনি বর্তমানে{" "}
+          <span className="font-bold text-primary">ফোকাস ব্যাচ</span> এ
+          আছেন। <br />
           ফোকাস ব্যাচ সম্পর্কে জানতে{" "}
           <Link className="text-error font-bold underline" to="/focus">
             এখানে ক্লিক করুন
@@ -17,40 +19,65 @@ export default function Focus() {
         </h2>
       </div>
 
-      {/* পরীক্ষাসমূহ Section */}
-      <div className="bg-white shadow-md rounded-lg p-4 flex flex-col gap-3">
-        <h2 className="bg-accent text-center text-white font-bold rounded-md py-2 text-lg">
-          পরীক্ষাসমূহ
-        </h2>
-        <p className="text-gray-600 text-center">
-          খুব শীঘ্রই এ ব্যাচের তথ্য এবং প্রয়োজনীয় কন্টেন্ট দেওয়া হবে।
-        </p>
+      <div className="bg-white shadow-md rounded-lg p-4">
 
-        {/* Placeholder links or future exams */}
-        <Link
-          to="/quiz"
-          className="flex items-center gap-3 border border-gray-200 rounded-lg px-4 py-3 hover:bg-accent/10 transition duration-200 w-full"
-        >
-          <FaLink className="text-accent text-2xl" />
-          <span className="font-medium text-gray-700">পরীক্ষাসমূহে যান</span>
-        </Link>
-      </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          
+          <Link
+            to="/report"
+            className="flex flex-col items-center border border-gray-200 rounded-lg px-1 py-3 hover:bg-red-50 transition"
+          >
+            <FaLink className="bg-red-500 text-white p-1.5 rounded-full text-4xl mb-2" />
+            <p className="font-bold text-gray-700">রিপোর্ট</p>
+            <span className="text-sm text-gray-600">শিক্ষার্থী প্রোফাইল</span>
+          </Link>
+          <Link
+            to="/quiz"
+            className="flex flex-col items-center border border-gray-200 rounded-lg px-1 py-3 hover:bg-red-50 transition"
+          >
+            <FaClock className="bg-blue-500 text-white p-1.5 rounded-full text-4xl mb-2" />
+            <p className="font-bold text-gray-700">কুইজ</p>
+            <span className="text-sm text-gray-600">অনলাইন পরীক্ষা</span>
+          </Link>
+          <Link
+            to="/result"
+            className="flex flex-col items-center border border-gray-200 rounded-lg px-1 py-3 hover:bg-red-50 transition"
+          >
+            <FaPaperclip className="bg-purple-500 text-white p-1.5 rounded-full text-4xl mb-2" />
+            <p className="font-bold text-gray-700">ফলাফল</p>
+            <span className="text-sm text-gray-600">কুইজের ফলাফল</span>
+          </Link>
+          <Link
+            to="/leaderboard"
+            className="flex flex-col items-center border border-gray-200 rounded-lg px-1 py-3 hover:bg-red-50 transition"
+          >
+            <FaUsers className="bg-orange-500 text-white p-1.5 rounded-full text-4xl mb-2" />
+            <p className="font-bold text-gray-700">লিডারবোর্ড</p>
+            <span className="text-sm text-gray-600"> শিক্ষার্থীদের অবস্থান </span>
+          </Link>
 
-      {/* YouTube Section */}
-      <div className="bg-white shadow-md rounded-lg p-4 flex flex-col gap-3">
-        <h2 className="bg-error text-center text-white font-bold rounded-md py-2 text-lg">
-          ইউটিউব ভিডিও
-        </h2>
-        <a
-          href="https://www.youtube.com/playlist?list=PLQsbXn2aOMyg0KF-Bo4Mn_IM59SYt3jkl"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 border border-gray-200 rounded-lg px-4 py-3 hover:bg-red-50 transition duration-200 w-full"
-        >
-          <FaYoutube className="text-red-500 text-2xl" />
-          <span className="font-medium text-gray-700">চতুর্থ অধ্যায়</span>
-        </a>
+
+          <Link
+            to="/videos"
+            className="flex flex-col items-center border border-gray-200 rounded-lg px-1 py-3 hover:bg-red-50 transition"
+          >
+            <FaYoutube className="bg-red-500 text-white p-1.5 rounded-full text-4xl mb-2" />
+            <p className="font-bold text-gray-700">ভিডিও</p>
+            <span className="text-sm text-gray-600"> সহায়ক ক্লাস </span>
+          </Link>
+
+          <Link
+            to="/intensive"
+            className="flex flex-col items-center border border-gray-200 rounded-lg px-1 py-3 hover:bg-red-50 transition"
+          >
+            <FaLevelUpAlt className="bg-green-500 text-white p-1.5 rounded-full text-4xl mb-2" />
+            <p className="font-bold text-gray-700">ইন্টেন্সিভ</p>
+            <span className="text-sm text-gray-600"> ব্যাচ সম্পর্কে জানুন </span>
+          </Link>
+
+        </div>
       </div>
+      
     </div>
   );
 }

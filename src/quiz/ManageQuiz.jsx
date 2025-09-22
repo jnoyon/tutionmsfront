@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase/firebase.init";
-import { collection, getDocs, doc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+} from "firebase/firestore";
 import { useNavigate } from "react-router";
 
 export default function ManageQuiz() {
@@ -10,32 +18,45 @@ export default function ManageQuiz() {
   useEffect(() => {
     const fetchQuizzes = async () => {
       const snapshot = await getDocs(collection(db, "quizzes"));
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const data = snapshot.docs.map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data(),
+      }));
       setQuizzes(data);
     };
     fetchQuizzes();
   }, []);
 
-  const toggleEnable = async (quiz) => {
+  const toggleActive = async (quiz) => {
     const ref = doc(db, "quizzes", quiz.id);
-    await updateDoc(ref, { enabled: !quiz.enabled });
-    setQuizzes(prev => prev.map(q => q.id === quiz.id ? { ...q, enabled: !q.enabled } : q));
+    await updateDoc(ref, { isActive: !quiz.isActive });
+    setQuizzes((prev) =>
+      prev.map((q) =>
+        q.id === quiz.id ? { ...q, isActive: !q.isActive } : q
+      )
+    );
   };
 
   const deleteQuiz = async (quiz) => {
-    if (!window.confirm("আপনি কি নিশ্চিতভাবে এই কুইজ মুছে ফেলতে চান?")) return;
+    if (!window.confirm("আপনি কি নিশ্চিতভাবে এই কুইজ মুছে ফেলতে চান?"))
+      return;
     await deleteDoc(doc(db, "quizzes", quiz.id));
-    setQuizzes(prev => prev.filter(q => q.id !== quiz.id));
+    setQuizzes((prev) => prev.filter((q) => q.id !== quiz.id));
   };
 
   const deleteResults = async (quiz) => {
-    if (!window.confirm("আপনি কি নিশ্চিতভাবে এই কুইজের সকল রেজাল্ট মুছে ফেলতে চান?")) return;
-    const resultsRef = collection(db, "results");
+    if (
+      !window.confirm(
+        "আপনি কি নিশ্চিতভাবে এই কুইজের সকল রেজাল্ট মুছে ফেলতে চান?"
+      )
+    )
+      return;
+    const resultsRef = collection(db, "quizResults"); // ✅ fixed
     const q = query(resultsRef, where("quizId", "==", quiz.id));
     const snapshot = await getDocs(q);
-    snapshot.docs.forEach(async docSnap => {
-      await deleteDoc(doc(db, "results", docSnap.id));
-    });
+    for (const docSnap of snapshot.docs) {
+      await deleteDoc(doc(db, "quizResults", docSnap.id));
+    }
     alert("সকল রেজাল্ট মুছে ফেলা হয়েছে।");
   };
 
@@ -47,7 +68,7 @@ export default function ManageQuiz() {
           <tr className="bg-gray-200">
             <th className="border border-gray-300 p-2">কুইজ শিরোনাম</th>
             <th className="border border-gray-300 p-2">ব্যাচ</th>
-            <th className="border border-gray-300 p-2">Enabled</th>
+            <th className="border border-gray-300 p-2">Active</th>
             <th className="border border-gray-300 p-2">Actions</th>
           </tr>
         </thead>
@@ -55,12 +76,14 @@ export default function ManageQuiz() {
           {quizzes.map((quiz) => (
             <tr key={quiz.id}>
               <td className="border border-gray-300 p-2">{quiz.title}</td>
-              <td className="border border-gray-300 p-2">{quiz.batch}</td>
+              <td className="border border-gray-300 p-2">
+                {quiz.batches?.join(", ") || "—"}
+              </td>
               <td className="border border-gray-300 p-2 text-center">
                 <input
                   type="checkbox"
-                  checked={quiz.enabled || false}
-                  onChange={() => toggleEnable(quiz)}
+                  checked={quiz.isActive || false}
+                  onChange={() => toggleActive(quiz)}
                   className="toggle toggle-success"
                 />
               </td>
