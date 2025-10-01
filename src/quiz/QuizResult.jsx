@@ -21,7 +21,7 @@ export default function QuizResult() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const batchOptions = ["ইন্টেন্সিভ", "ফোকাস", "কম্পিউটার"];
+  const batchOptions = ["০১", "০২", "০৩", "০৪", "কম্পিউটার"];
 
   // Fetch quizzes whenever selected batches change
   useEffect(() => {
@@ -101,8 +101,8 @@ export default function QuizResult() {
       <ToastContainer autoClose={2000} />
 
       {/* Batch Selection */}
-      <div className="mb-4">
-        <label className="label">ব্যাচ নির্বাচন করুন:</label>
+      <div className="mb-4 flex bg-white shadow p-2 gap-2">
+        <label className="label font-bold">ব্যাচ:</label>
         <div className="flex gap-3 flex-wrap">
           {batchOptions.map((batch) => (
             <label key={batch} className="flex items-center gap-2">
@@ -126,8 +126,8 @@ export default function QuizResult() {
 
       {/* Quiz Selection */}
       {quizzes.length > 0 && (
-        <div className="mb-4">
-          <label className="label">কুইজ নির্বাচন করুন:</label>
+        <div className="mb-4 flex bg-white shadow p-2 gap-2">
+          <label className="label">কুইজ:</label>
           <select
             className="select select-bordered w-full"
             value={selectedQuiz}

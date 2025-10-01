@@ -5,38 +5,43 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function AddAttendance() {
-  const [batch, setBatch] = useState('ইন্টেন্সিভ'); // Default batch
+  const [batch, setBatch] = useState('০১'); // Default batch
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // Fetch students whenever batch changes
-  useEffect(() => {
-    if (!batch) return;
+ useEffect(() => {
+  if (!batch) return;
 
-    const fetchStudents = async () => {
-      setLoading(true);
-      try {
-        const q = query(collection(db, 'students'), where('batch', '==', batch));
-        const snapshot = await getDocs(q);
+  const fetchStudents = async () => {
+    setLoading(true);
+    try {
+      const q = query(
+        collection(db, "students"),
+        where("batch", "==", batch),
+        where("isActive", "==", true) // ✅ Only active students
+      );
 
-        const data = snapshot.docs.map(docSnap => ({
-          id: docSnap.id,
-          ...docSnap.data(),
-          present: false,
-          assignment: false,
-        }));
+      const snapshot = await getDocs(q);
 
-        setStudents(data);
-      } catch (err) {
-        console.error(err);
-        toast.error('Failed to fetch students');
-      } finally {
-        setLoading(false);
-      }
-    };
+      const data = snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...docSnap.data(),
+        present: false,
+        assignment: false,
+      }));
 
-    fetchStudents();
-  }, [batch]);
+      setStudents(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch students");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchStudents();
+}, [batch]);
 
   const handleCheckboxChange = (id, type) => {
     setStudents(prev =>
@@ -96,8 +101,10 @@ export default function AddAttendance() {
           value={batch}
           onChange={e => setBatch(e.target.value)}
         >
-          <option value='ইন্টেন্সিভ'>ইন্টেন্সিভ</option>
-          <option value='ফোকাস'>ফোকাস</option>
+          <option value='০১'>ব্যাচ-০১</option>
+          <option value='০২'>ব্যাচ-০২</option>
+          <option value='০৩'>ব্যাচ-০৩</option>
+          <option value='০৪'>ব্যাচ-০৪</option>
           <option value='কম্পিউটার'>কম্পিউটার</option>
         </select>
       </div>

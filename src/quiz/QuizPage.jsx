@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Link, useParams, useNavigate } from "react-router";
+
 import {
   collection,
   doc,
@@ -14,6 +15,7 @@ import {
 import { db } from "../firebase/firebase.init";
 import { AuthContext } from "../firebase/AuthProvider";
 import Swal from "sweetalert2";
+import ExamAudioAlert from "./quizcomponent/ExamAudioAlert";
 
 export default function QuizPage() {
   const { quizId } = useParams();
@@ -244,6 +246,7 @@ export default function QuizPage() {
           জমা দিন
         </button>
       )}
+<ExamAudioAlert timeLeft={timeLeft} duration={duration} />
 
       <dialog id="result_modal" className="modal">
         <div className="modal-box">

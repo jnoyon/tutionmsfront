@@ -11,10 +11,15 @@ export default function EditQuiz() {
 
   const [quiz, setQuiz] = useState(null);
   const [title, setTitle] = useState("");
-  const [batch, setBatch] = useState("ইন্টেন্সিভ");
-  const [duration, setDuration] = useState(10); // মিনিট
+  const [batches, setBatches] = useState([]); // ✅ array for multiple batches
+  const [syllabus, setSyllabus] = useState("");
+  const [subject, setSubject] = useState("");
+  const [chapter, setChapter] = useState("");
+  const [duration, setDuration] = useState(10);
+  const [isActive, setIsActive] = useState(true);
   const [questions, setQuestions] = useState([]);
 
+  // Fetch quiz
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
@@ -24,8 +29,12 @@ export default function EditQuiz() {
           const data = snap.data();
           setQuiz({ id: snap.id, ...data });
           setTitle(data.title);
-          setBatch(data.batch);
+          setBatches(data.batches || []);
+          setSyllabus(data.syllabus || "");
+          setSubject(data.subject || "");
+          setChapter(data.chapter || "");
           setDuration(data.duration || 10);
+          setIsActive(data.isActive ?? true);
           setQuestions(data.questions || []);
         } else {
           toast.error("কুইজ পাওয়া যায়নি!");
@@ -38,19 +47,29 @@ export default function EditQuiz() {
     fetchQuiz();
   }, [quizId]);
 
+  const handleBatchChange = (batchName) => {
+    setBatches((prev) =>
+      prev.includes(batchName)
+        ? prev.filter((b) => b !== batchName)
+        : [...prev, batchName]
+    );
+  };
+
   const handleQuestionChange = (index, field, value) => {
     const updated = [...questions];
     if (field === "question" || field === "answer") {
       updated[index][field] = value;
     } else {
-      // option index
       updated[index].options[field] = value;
     }
     setQuestions(updated);
   };
 
   const addQuestion = () => {
-    setQuestions((prev) => [...prev, { question: "", options: ["", "", "", ""], answer: "" }]);
+    setQuestions((prev) => [
+      ...prev,
+      { question: "", options: ["", "", "", ""], answer: "" },
+    ]);
   };
 
   const removeQuestion = (index) => {
@@ -58,24 +77,57 @@ export default function EditQuiz() {
   };
 
   const handleSave = async () => {
-    if (!title.trim()) return toast.error("কুইজের শিরোনাম লিখুন");
-    if (questions.length === 0) return toast.error("কমপক্ষে একটি প্রশ্ন থাকতে হবে");
+  // ✅ Validation
+  if (!title?.trim()) return toast.error("কুইজের শিরোনাম লিখুন");
+  if (!syllabus?.trim()) return toast.error("সিলেবাস লিখুন");
+  if (!subject?.trim()) return toast.error("বিষয় লিখুন");
+  if (!chapter?.trim()) return toast.error("অধ্যায় লিখুন");
+  if (!Array.isArray(batches) || batches.length === 0) {
+    return toast.error("কমপক্ষে একটি ব্যাচ নির্বাচন করুন");
+  }
+  if (!Array.isArray(questions) || questions.length === 0) {
+    return toast.error("কমপক্ষে একটি প্রশ্ন থাকতে হবে");
+  }
 
-    for (let q of questions) {
-      if (!q.question.trim()) return toast.error("সব প্রশ্ন পূরণ করুন");
-      if (!q.answer.trim()) return toast.error("সব প্রশ্নের সঠিক উত্তর নির্বাচন করুন");
-      if (q.options.some((opt) => !opt.trim())) return toast.error("সব অপশন পূরণ করুন");
+  for (let q of questions) {
+    if (!q.question?.trim()) return toast.error("সব প্রশ্ন পূরণ করুন");
+    if (!q.answer?.trim()) return toast.error("সব প্রশ্নের সঠিক উত্তর নির্বাচন করুন");
+    if (q.options.some((opt) => !opt?.trim())) {
+      return toast.error("সব অপশন পূরণ করুন");
     }
+  }
 
-    try {
-      const ref = doc(db, "quizzes", quizId);
-      await updateDoc(ref, { title, batch, duration, questions });
-      toast.success("কুইজ সফলভাবে আপডেট হয়েছে!");
-    } catch (err) {
-      console.error(err);
-      toast.error("আপডেট করতে সমস্যা: " + err.message);
-    }
-  };
+  try {
+    const ref = doc(db, "quizzes", quizId);
+
+    // ✅ Strip out undefined values everywhere
+    const cleanQuestions = questions.map((q) => ({
+      question: q.question || "",
+      options: (q.options || []).map((opt) => opt || ""),
+      answer: q.answer || "",
+    }));
+
+    const payload = {
+      title: title || "",
+      batches: Array.isArray(batches) ? batches : [],
+      syllabus: syllabus || "",
+      subject: subject || "",
+      chapter: chapter || "",
+      duration: duration || 10,
+      isActive: isActive ?? true,
+      questions: cleanQuestions,
+    };
+
+    await updateDoc(ref, payload);
+
+    toast.success("কুইজ সফলভাবে আপডেট হয়েছে!");
+  } catch (err) {
+    console.error("🔥 Firestore update error:", err);
+    toast.error("আপডেট করতে সমস্যা: " + err.message);
+  }
+};
+
+
 
   if (!quiz) return <p>লোড হচ্ছে...</p>;
 
@@ -85,6 +137,7 @@ export default function EditQuiz() {
       <h2 className="text-2xl font-bold mb-4">কুইজ সম্পাদনা করুন</h2>
 
       <div className="space-y-4">
+        {/* Title */}
         <label className="label">কুইজ শিরোনাম</label>
         <input
           type="text"
@@ -93,26 +146,71 @@ export default function EditQuiz() {
           onChange={(e) => setTitle(e.target.value)}
         />
 
-        <label className="label">ব্যাচ</label>
-        <select
-          className="select select-bordered w-full mb-4"
-          value={batch}
-          onChange={(e) => setBatch(e.target.value)}
-        >
-          <option value="ইন্টেন্সিভ">ইন্টেন্সিভ</option>
-          <option value="ফোকাস">ফোকাস</option>
-          <option value="কম্পিউটার">কম্পিউটার</option>
-        </select>
+        {/* Syllabus */}
+        <label className="label">সিলেবাস</label>
+        <input
+          type="text"
+          className="input w-full"
+          value={syllabus}
+          onChange={(e) => setSyllabus(e.target.value)}
+        />
 
-        <label className="label">সময় (মিনিট)</label>
+        {/* Subject */}
+        <label className="label">বিষয়</label>
+        <input
+          type="text"
+          className="input w-full"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+        />
+
+        {/* Chapter */}
+        <label className="label">অধ্যায়</label>
+        <input
+          type="text"
+          className="input w-full"
+          value={chapter}
+          onChange={(e) => setChapter(e.target.value)}
+        />
+
+        {/* Batch checkboxes */}
+        <div className="flex flex-col sm:flex-row gap-2 mt-2 border border-gray-300 rounded-sm bg-white p-2">
+          <label className="label">ব্যাচ</label>
+          {["০১", "০২","০৩", "০৪", "কম্পিউটার"].map((batchName) => (
+            <label key={batchName} className="cursor-pointer flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-accent"
+                checked={batches.includes(batchName)}
+                onChange={() => handleBatchChange(batchName)}
+              />
+              <span>{batchName}</span>
+            </label>
+          ))}
+        </div>
+
+        {/* Duration */}
+        <label className="label">সময় (মিনিটে)</label>
         <input
           type="number"
+          min="1"
           className="input w-full mb-4"
           value={duration}
-          min={1}
           onChange={(e) => setDuration(Number(e.target.value))}
         />
 
+        {/* Active / Inactive */}
+        <label className="label">কুইজ চালু আছে?</label>
+        <select
+          className="select select-bordered w-full mb-4"
+          value={isActive ? "true" : "false"}
+          onChange={(e) => setIsActive(e.target.value === "true")}
+        >
+          <option value="true">হ্যাঁ</option>
+          <option value="false">না</option>
+        </select>
+
+        {/* Questions */}
         {questions.map((q, idx) => (
           <div key={idx} className="border p-3 rounded-md mb-3 space-y-2">
             <div className="flex justify-between items-center">
@@ -127,6 +225,7 @@ export default function EditQuiz() {
                 </button>
               )}
             </div>
+
             <input
               type="text"
               placeholder="প্রশ্ন লিখুন"

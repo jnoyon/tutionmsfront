@@ -4,9 +4,8 @@ import Hero from "./home/Hero";
 import LoginSection from "./home/LoginSection";
 import LeaderboardSection from "../components/LeaderboardSection";
 import Noticeboard from "./Noticeboard";
-import Intensive from "../components/Intensive";
-import Focus from "../components/Focus";
-import Computer from "../components/Computer";
+import HSCBatch from "./home/HSCBatch";
+import BatchComponent from "../components/BatchComponent";
 
 export default function Home() {
   const { user } = useContext(AuthContext);
@@ -17,13 +16,33 @@ export default function Home() {
 
       <div className="w-11/12 mx-auto my-3">
         {user && <Noticeboard />}
-        <LeaderboardSection />
+
+
+
+        {!user && <HSCBatch></HSCBatch>}
+
+        {user?.email ? (
+    <>
+      <LeaderboardSection batch={"০১"} />
+      <LeaderboardSection batch={"০২"} />
+      <LeaderboardSection batch={"০৩"} />
+      <LeaderboardSection batch={"০৪"} />
+      <LeaderboardSection batch={"কম্পিউটার"} />
+        </>
+      ) : (
+        user?.isActive && ["০১", "০২", "০৩", "০৪", "কম্পিউটার"].includes(user?.batch) && (
+          <LeaderboardSection batch={user.batch} />
+        )
+      )}
+
+        
         {!user && <LoginSection />}
 
-        {/* Conditional batch component only if user is active */}
-        {user?.isActive && user?.batch === "ইন্টেন্সিভ" && <Intensive />}
-        {user?.isActive && user?.batch === "ফোকাস" && <Focus />}
-        {user?.isActive && user?.batch === "কম্পিউটার" && <Computer />}
+
+        {user?.isActive && user?.batch && (
+          <BatchComponent batch={user.batch} />
+        )}
+
       </div>
     </div>
   );

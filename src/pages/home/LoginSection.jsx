@@ -53,7 +53,7 @@ export default function StudentLogin() {
 
       if (studentData.isActive) {
         toast.success("লগিন সফল!");
-        navigate("/report");
+        navigate("/");
       } else {
         toast.info("অ্যাডমিন এখনও আপনার অ্যাকাউন্ট সক্রিয় করেননি");
       }

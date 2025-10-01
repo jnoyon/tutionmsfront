@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase/firebase.init";
 import { AuthContext } from "../firebase/AuthProvider";
+import { Helmet } from "react-helmet";
 
 export default function Videos() {
   const { user } = useContext(AuthContext);
@@ -53,6 +54,7 @@ export default function Videos() {
   return (
     <div className="w-11/12 mx-auto my-5 space-y-6">
       <h2 className="text-xl font-bold mb-4"> সহায়ক ভিডিও </h2>
+      <Helmet>Video - TopLine Academy</Helmet>
 
       {Object.keys(groupedBySubject).map((subject) => (
         <div key={subject} className="border p-3 bg-white border-gray-300 rounded-md shadow">

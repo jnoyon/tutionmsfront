@@ -83,8 +83,10 @@ export default function AddFee() {
           value={batch}
           onChange={e => setBatch(e.target.value)}
         >
-          <option value="ইন্টেন্সিভ">ইন্টেন্সিভ</option>
-          <option value="ফোকাস">ফোকাস</option>
+          <option value="০১">ব্যাচ-০১</option>
+          <option value="০২">ব্যাচ-০২</option>
+          <option value="০৩">ব্যাচ-০৩</option>
+          <option value="০৪">ব্যাচ-০৪</option>
           <option value="কম্পিউটার">কম্পিউটার</option>
         </select>
       </div>

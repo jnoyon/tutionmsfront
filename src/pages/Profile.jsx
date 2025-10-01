@@ -192,7 +192,7 @@ export default function Profile() {
           {/* Batch */}
           <label className="label">ব্যাচ</label>
           <div className="flex gap-4 border bg-white border-gray-300 rounded-md p-2">
-            {["ইন্টেন্সিভ", "ফোকাস", "কম্পিউটার"].map((b) => (
+            {["০১", "০২", "০৩", "০৪", "কম্পিউটার"].map((b) => (
               <label key={b} className="flex items-center gap-1">
                 <input
                   type="radio"

@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import logo from "../assets/images/logo.jpg";
+import logo from "../assets/images/logo.jpeg";
 import { Link, useNavigate } from "react-router";
 import { AuthContext } from "../firebase/AuthProvider";
 import { FaUserGraduate } from "react-icons/fa";
@@ -36,7 +36,7 @@ export default function Header() {
           <div className="flex-1 flex items-center gap-2">
             <img src={logo} width={35} alt="Logo" />
             <Link to="/" className="text-xl font-bold">
-              নয়ন অ্যাকাডেমি
+              টপলাইন একাডেমি
             </Link>
           </div>
           <div className="flex-none">

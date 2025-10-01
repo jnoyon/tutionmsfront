@@ -102,7 +102,7 @@ export default function QuizList() {
               <p className="text-sm mb-2">{quiz.syllabus || "কোন সিলেবাস নেই"}</p>
 
               <div className="flex justify-between text-sm text-gray-700 font-bold mb-2">
-                <span>প্রশ্ন: {quiz.questions.length} টি</span>
+                <span>প্রশ্ন: 10 টি</span>
                 <span className="flex items-center">
                   <FaClock className="mr-1" /> {quiz.duration} মিনিট
                 </span>

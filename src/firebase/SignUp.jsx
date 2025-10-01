@@ -29,17 +29,10 @@ export default function SignUp() {
   });
 
   const [studentId, setStudentId] = useState("");
-  const [monthlyFee, setMonthlyFee] = useState(""); // fee input
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "batch") {
-      // Set fee based on batch
-      if (value === "ফোকাস") setMonthlyFee("600");
-      else if (value === "ইন্টেন্সিভ") setMonthlyFee("1200");
-      else setMonthlyFee("1000"); // অন্যান্য or others
-    }
 
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -75,7 +68,7 @@ export default function SignUp() {
     );
     const snapshot = await getDocs(q);
     if (!snapshot.empty) {
-      return toast.error("This phone number is already registered!");
+      return toast.error("এই নম্বর দিয়ে রেজিস্ট্রেশন করা আছে");
     }
 
     // ✅ Generate unique studentId
@@ -98,7 +91,7 @@ export default function SignUp() {
 };
 
   return (
-    <div className="hero bg-base-200 min-h-screen">
+    <div className="hero bg-base-200 mb-5 md:min-h-screen">
       <ToastContainer autoClose={2000} />
       <div className="card bg-base-100 w-full max-w-sm shadow-2xl mx-auto mt-10">
         <form onSubmit={handleSubmit} className="card-body">
@@ -119,7 +112,7 @@ export default function SignUp() {
             type="tel"
             name="phone"
             className="input"
-            placeholder="০১XXXXXXXXX"
+            placeholder="01XXXXXXXXX"
             value={formData.phone}
             onChange={handleChange}
             pattern="[0-9]{10,15}"
@@ -155,7 +148,7 @@ export default function SignUp() {
 
           <label className="label">ব্যাচ</label>
           <div className="flex gap-4 border bg-white border-gray-300 rounded-md p-2">
-            {["ইন্টেন্সিভ", "ফোকাস", "কম্পিউটার"].map((b) => (
+            {["০১", "০২", "০৩", "০৪", "কম্পিউটার"].map((b) => (
               <label key={b} className="flex items-center gap-1">
                 <input
                   type="radio"
@@ -171,13 +164,7 @@ export default function SignUp() {
             ))}
           </div>
 
-          {/* Disabled fee input */}
-          {monthlyFee && (
-            <>
-              <label className="label">মাসিক ফি</label>
-              <input type="text" className="input" value={monthlyFee} disabled />
-            </>
-          )}
+
 
           <button type="submit" className="btn btn-neutral mt-4">
             রেজিস্ট্রেশন করুন
