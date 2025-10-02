@@ -28,6 +28,7 @@ import EditQuiz from './quiz/EditQuiz.jsx'
 import Videos from './pages/Videos.jsx'
 import RecentQuiz from './quiz/RecentQuiz.jsx'
 import AddVideo from './manage/AddVideo.jsx'
+import HtmlEditor from './pages/HtmlEditor.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -45,6 +46,7 @@ createRoot(document.getElementById('root')).render(
           <Route path='/recentresults' element={<AdminRoute><RecentQuiz></RecentQuiz></AdminRoute>}> </Route>
 
           <Route path='/quiz' element={<PrivateRoute><QuizList></QuizList></PrivateRoute>}> </Route>
+          <Route path='/html' element={<HtmlEditor></HtmlEditor>}> </Route>
           <Route path='/quiz/:quizId' element={<PrivateRoute> <QuizPage></QuizPage> </PrivateRoute>}> </Route>
           <Route path='/result' element={<PrivateRoute> <QuizResult></QuizResult> </PrivateRoute>}> </Route>
           <Route path='/add-quiz' element={<AdminRoute><AddQuiz></AddQuiz></AdminRoute>}> </Route>
