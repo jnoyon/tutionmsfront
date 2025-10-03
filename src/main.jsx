@@ -26,19 +26,20 @@ import EditQuiz from './quiz/EditQuiz.jsx'
 import Videos from './pages/Videos.jsx'
 import RecentQuiz from './quiz/RecentQuiz.jsx'
 import AddVideo from './manage/AddVideo.jsx'
-import HtmlEditor from './pages/HtmlEditor.jsx'
 import PublicCreateQuiz from './public-quiz/PublicCreateQuiz.jsx'
 import PublicQuizList from './public-quiz/PublicQuizList.jsx'
 import PublicQuizPage from './public-quiz/PublicQuizpage.jsx'
 import PublicEditQuiz from './public-quiz/PublicEditQuiz.jsx'
 import PublicManageQuiz from './public-quiz/PublicManageQuiz.jsx'
 import PublicQuizResult from './public-quiz/PublicQuizResult.jsx'
+import HtmlEditor from './layout/HtmlEditor.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <BrowserRouter>
       <Routes>
+        <Route path='/html' element={<HtmlEditor />} />
         <Route path='/' element={<MainLayout></MainLayout>}>
           <Route index element={<Home></Home>} ></Route>
           <Route path='/signup' element={<SignUp></SignUp>} ></Route>
@@ -50,7 +51,6 @@ createRoot(document.getElementById('root')).render(
           <Route path='/recentresults' element={<AdminRoute><RecentQuiz></RecentQuiz></AdminRoute>}> </Route>
 
           <Route path='/quiz' element={<PrivateRoute><QuizList></QuizList></PrivateRoute>}> </Route>
-          <Route path='/html' element={<HtmlEditor></HtmlEditor>}> </Route>
           <Route path='/quiz/:quizId' element={<PrivateRoute> <QuizPage></QuizPage> </PrivateRoute>}> </Route>
           <Route path='/result' element={<PrivateRoute> <QuizResult></QuizResult> </PrivateRoute>}> </Route>
           <Route path='/add-quiz' element={<AdminRoute><AddQuiz></AddQuiz></AdminRoute>}> </Route>
