@@ -114,7 +114,9 @@ export default function Header() {
               )}
             </>
           ) : (
-            <li><Link to="/login" onClick={closeDrawer}>লগইন</Link></li>
+            <><li><Link to="/login" onClick={closeDrawer}>লগইন</Link></li>
+            <li><Link to="/html" onClick={closeDrawer}>এইচটিএমএল এডিটর</Link></li> </>
+            
           )}
         </ul>
       </div>

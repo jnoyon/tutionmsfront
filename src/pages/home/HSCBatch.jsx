@@ -13,7 +13,7 @@ export default function HSCBatch() {
           {/* Header */}
           <div className="text-center space-y-2">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
-              এইচএসসি ফোকাস ব্যাচ
+              এইচএসসি ব্যাচ
             </h2>
             <p className="text-gray-600 text-sm sm:text-base">
               বিষয়ভিত্তিক ব্যাচ  
