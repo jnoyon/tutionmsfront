@@ -1,4 +1,4 @@
-import { FaClock, FaLevelUpAlt, FaLink, FaPaperclip, FaYoutube } from "react-icons/fa";
+import { FaClock, FaHtml5, FaLevelUpAlt, FaLink, FaPaperclip, FaYoutube } from "react-icons/fa";
 import { FaUsers } from "react-icons/fa6";
 import { Link } from "react-router";
 
@@ -23,40 +23,48 @@ export default function BatchComponent({ batch }) {
       {/* Resources */}
       <div className="bg-white shadow-md rounded-lg p-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          <Link to="/report" className="flex flex-col items-center border rounded-lg px-1 py-3 hover:bg-red-50 transition">
+          <Link to="/report" className="flex flex-col items-center border border-gray-300 rounded-lg px-1 py-3 hover:bg-red-50 transition">
             <FaLink className="bg-red-500 text-white p-1.5 rounded-full text-4xl mb-2" />
             <p className="font-bold text-gray-700">রিপোর্ট</p>
             <span className="text-sm text-gray-600">শিক্ষার্থী প্রোফাইল</span>
           </Link>
 
-          <Link to="/quiz" className="flex flex-col items-center border rounded-lg px-1 py-3 hover:bg-red-50 transition">
+          <Link to="/quiz" className="flex flex-col items-center border border-gray-300 rounded-lg px-1 py-3 hover:bg-red-50 transition">
             <FaClock className="bg-blue-500 text-white p-1.5 rounded-full text-4xl mb-2" />
             <p className="font-bold text-gray-700">কুইজ</p>
             <span className="text-sm text-gray-600">অনলাইন পরীক্ষা</span>
           </Link>
 
-          <Link to="/result" className="flex flex-col items-center border rounded-lg px-1 py-3 hover:bg-red-50 transition">
+          <Link to="/result" className="flex flex-col items-center border border-gray-300 rounded-lg px-1 py-3 hover:bg-red-50 transition">
             <FaPaperclip className="bg-purple-500 text-white p-1.5 rounded-full text-4xl mb-2" />
             <p className="font-bold text-gray-700">ফলাফল</p>
             <span className="text-sm text-gray-600">কুইজের ফলাফল</span>
           </Link>
 
-          <Link to="/leaderboard" className="flex flex-col items-center border rounded-lg px-1 py-3 hover:bg-red-50 transition">
+          <Link to="/leaderboard" className="flex flex-col items-center border border-gray-300 rounded-lg px-1 py-3 hover:bg-red-50 transition">
             <FaUsers className="bg-orange-500 text-white p-1.5 rounded-full text-4xl mb-2" />
             <p className="font-bold text-gray-700">লিডারবোর্ড</p>
             <span className="text-sm text-gray-600">শিক্ষার্থীদের অবস্থান</span>
           </Link>
 
-          <Link to="/videos" className="flex flex-col items-center border rounded-lg px-1 py-3 hover:bg-red-50 transition">
+          <Link to="/videos" className="flex flex-col items-center border border-gray-300 rounded-lg px-1 py-3 hover:bg-red-50 transition">
             <FaYoutube className="bg-red-500 text-white p-1.5 rounded-full text-4xl mb-2" />
             <p className="font-bold text-gray-700">ভিডিও</p>
             <span className="text-sm text-gray-600">সহায়ক ক্লাস</span>
           </Link>
         {batch === "কম্পিউটার" && (
-          <Link to="/sheet" className="flex flex-col items-center border rounded-lg px-1 py-3 hover:bg-red-50 transition">
+          <Link to="/sheet" className="flex flex-col items-center border border-gray-300 rounded-lg px-1 py-3 hover:bg-red-50 transition">
             <FaLevelUpAlt className="bg-green-500 text-white p-1.5 rounded-full text-4xl mb-2" />
             <p className="font-bold text-gray-700">এসাইনমেন্ট</p>
             <span className="text-sm text-gray-600">এখানে দেখুন</span>
+          </Link>
+        )}
+
+        {(batch === "০১" || batch === "০২" || batch === "০৩" || batch === "০৪") && (
+          <Link to="/html" className="flex flex-col items-center border border-gray-300 rounded-lg px-1 py-3 hover:bg-red-50 transition">
+            <FaHtml5 className="bg-orange-500 text-white p-1.5 rounded-full text-4xl mb-2" />
+            <p className="font-bold text-gray-700">এইচটিএমএল এডিটর</p>
+            <span className="text-sm text-gray-600">কোড লিখুন</span>
           </Link>
         )}
           

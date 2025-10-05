@@ -6,6 +6,7 @@ import LeaderboardSection from "../components/LeaderboardSection";
 import Noticeboard from "./Noticeboard";
 import HSCBatch from "./home/HSCBatch";
 import BatchComponent from "../components/BatchComponent";
+import GrammarBookPreview from "../components/GrammarBookPreview";
 
 export default function Home() {
   const { user } = useContext(AuthContext);
@@ -13,6 +14,8 @@ export default function Home() {
   return (
     <div>
       {!user && <Hero />}
+
+      <GrammarBookPreview></GrammarBookPreview>
 
       <div className="w-11/12 mx-auto my-3">
         {user && <Noticeboard />}
