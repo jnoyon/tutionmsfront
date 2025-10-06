@@ -21,6 +21,16 @@ export default function HtmlEditor() {
 
   // 🔹 HTML Snippets to insert
   const htmlSnippets = {
+    bold: `<b>টপলাইন একাডেমি</b>`,
+    italic: `<i>টপলাইন একাডেমি</i>`,
+    underline: `<u>টপলাইন একাডেমি</u>`,
+    delete: `<del>টপলাইন একাডেমি</del>`,
+    sup: `a<sup>2</sup>`,
+    sub: `H<sub>2</sub>O`,
+    redText: `<p style="color: red">টপলাইন একাডেমি</p>`,
+    align: `<p> টপলাইন </p> 
+<p align="center">টপলাইন </p>
+<p align="right">টপলাইন </p>`,
     orderedList: `<ol>
   <li>Bangla</li>
   <li>English</li>
@@ -31,6 +41,7 @@ export default function HtmlEditor() {
   <li>English</li>
   <li>ICT</li>
 </ul>`,
+image: `<img src="https://toplineac.xyz/logo.jpeg" width="100" height="100">`,
     table: `<table border="1">
   <tr>
     <th>Roll</th>
@@ -47,8 +58,11 @@ export default function HtmlEditor() {
 </table>`,
     headings: `<h1>Heading One</h1>
 <h2>Heading Two</h2>
-<h3>Heading Three</h3>`,
-    redText: `<p style="color: red">টপলাইন একাডেমি</p>`,
+<h3>Heading Three</h3>
+<h4> Heading Four </h4>
+<h5> Heading Five </h5>
+<h6> Heading Six </h6>`,
+    
   };
 
   const insertSnippet = (snippet) => {
@@ -146,7 +160,7 @@ export default function HtmlEditor() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+   <div className="flex flex-col min-h-[calc(100vh-150px)]">
       {/* Toolbar */}
       <div className="flex justify-between gap-2 p-2 border-b border-gray-300 bg-base-200">
         {/* Symbol Buttons */}
@@ -258,11 +272,35 @@ export default function HtmlEditor() {
           এইচটিএমএল স্যাম্পল কোড
         </h1>
         <div className="flex flex-wrap justify-center gap-2">
+          <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.bold)}>
+            বোল্ড
+          </button>
+          <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.italic)}>
+            ইটালিক
+          </button>
+          <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.underline)}>
+            আন্ডারলাইন
+          </button>
+          <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.delete)}>
+            ডিলেট
+          </button>
+          <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.sup)}>
+            সুপারস্ক্রিপ্ট
+          </button>
+          <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.sub)}>
+            সাবস্ক্রিপ্ট
+          </button>
+          <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.align)}>
+            এলাইনমেন্ট
+          </button>
           <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.orderedList)}>
             অর্ডার লিস্ট
           </button>
           <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.unorderedList)}>
             আনঅর্ডার লিস্ট
+          </button>
+          <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.image)}>
+            ইমেইজ
           </button>
           <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.table)}>
             টেবিল
@@ -270,9 +308,7 @@ export default function HtmlEditor() {
           <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.headings)}>
             হেডিং ট্যাগ
           </button>
-          <button className="btn btn-warning btn-sm" onClick={() => insertSnippet(htmlSnippets.redText)}>
-            রেড টেক্সট
-          </button>
+          
         </div>
       </div>
     </div>
