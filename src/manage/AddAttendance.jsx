@@ -1,147 +1,153 @@
-import React, { useEffect, useState } from 'react';
-import { db } from '../firebase/firebase.init';
-import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useEffect, useState, useContext } from "react";
+import { db } from "../firebase/firebase.init";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
+import { AuthContext } from "../firebase/AuthProvider";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddAttendance() {
-  const [batch, setBatch] = useState('০১'); // Default batch
+  const { user } = useContext(AuthContext);
+  const [batch, setBatch] = useState("০১");
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch students whenever batch changes
- useEffect(() => {
-  if (!batch) return;
+  // ✅ List of super admin emails
+  const superAdmins = ["jihadur51@gmail.com"]; // add more if needed
+  const isSuperAdmin = superAdmins.includes(user?.email);
 
-  const fetchStudents = async () => {
-    setLoading(true);
-    try {
-      const q = query(
-        collection(db, "students"),
-        where("batch", "==", batch),
-        where("isActive", "==", true) // ✅ Only active students
-      );
+  // Redirect / block non-super-admin
+  if (!user) return <p className="text-center mt-10">লোড হচ্ছে...</p>;
+  if (!isSuperAdmin)
+    return (
+      <p className="text-center mt-10 text-red-500">
+        আপনার অনুমতি নেই। শুধুমাত্র Super Admin অ্যাক্সেস করতে পারবেন।
+      </p>
+    );
 
-      const snapshot = await getDocs(q);
+  // Fetch students by batch
+  useEffect(() => {
+    if (!batch) return;
 
-      const data = snapshot.docs.map(docSnap => ({
-        id: docSnap.id,
-        ...docSnap.data(),
-        present: false,
-        assignment: false,
-      }));
+    const fetchStudents = async () => {
+      setLoading(true);
+      try {
+        const q = query(
+          collection(db, "students"),
+          where("batch", "==", batch),
+          where("isActive", "==", true)
+        );
 
-      setStudents(data);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch students");
-    } finally {
-      setLoading(false);
-    }
-  };
+        const snapshot = await getDocs(q);
 
-  fetchStudents();
-}, [batch]);
+        const data = snapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data(),
+          attendance: docSnap.data().attendance || {},
+          present: true, // ✅ EVERY STUDENT DEFAULT PRESENT
+        }));
 
-  const handleCheckboxChange = (id, type) => {
-    setStudents(prev =>
-      prev.map(s => (s.id === id ? { ...s, [type]: !s[type] } : s))
+        setStudents(data);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to fetch students");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudents();
+  }, [batch]);
+
+  const handleCheckboxChange = (id) => {
+    setStudents((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, present: !s.present } : s))
     );
   };
 
   const handleSubmit = async () => {
-    if (!batch) return toast.error('Please select a batch');
+    if (!batch) return toast.error("Please select a batch");
 
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const today = new Date().toISOString().split("T")[0];
     setLoading(true);
 
     try {
       await Promise.all(
-        students.map(async student => {
-          const docRef = doc(db, 'students', student.id);
-          const attendance = student.attendance || {};
+        students.map(async (student) => {
+          const docRef = doc(db, "students", student.id);
 
-          // Avoid double-counting
-          if (!attendance[today]) {
-            const newMark =
-              (student.mark || 0) +
-              (student.present ? 1 : 0) +
-              (student.assignment ? 1 : 0);
+          // update attendance
+          await updateDoc(docRef, {
+            [`attendance.${today}`]: { present: student.present },
+          });
 
-            attendance[today] = {
-              present: student.present,
-              assignment: student.assignment,
-            };
+          // update mark (only add if present)
+          const currentMark = Number(student.mark) || 0;
+          const newMark = student.present ? currentMark + 1 : currentMark;
 
-            await updateDoc(docRef, { mark: newMark, attendance });
-          }
+          await updateDoc(docRef, { mark: newMark });
         })
       );
 
-      toast.success('Attendance updated successfully!');
-      // Reset checkboxes after submission
-      setStudents(prev =>
-        prev.map(s => ({ ...s, present: false, assignment: false }))
-      );
+      toast.success("Attendance updated successfully!");
+
+      // Reset after submit (everyone present again)
+      setStudents((prev) => prev.map((s) => ({ ...s, present: true })));
     } catch (err) {
       console.error(err);
-      toast.error('Failed to update attendance: ' + err.message);
+      toast.error("Failed to update attendance: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className='py-5 w-11/12 mx-auto'>
+    <div className="py-5 w-11/12 mx-auto">
       <ToastContainer autoClose={2000} />
-      <div className='mb-3 flex items-center gap-2'>
+
+      <div className="mb-3 flex items-center gap-2">
         <label>ব্যাচ:</label>
         <select
-          className='select select-bordered w-full'
+          className="select select-bordered w-full"
           value={batch}
-          onChange={e => setBatch(e.target.value)}
+          onChange={(e) => setBatch(e.target.value)}
         >
-          <option value='০১'>ব্যাচ-০১</option>
-          <option value='০২'>ব্যাচ-০২</option>
-          <option value='০৩'>ব্যাচ-০৩</option>
-          <option value='০৪'>ব্যাচ-০৪</option>
-          <option value='কম্পিউটার'>কম্পিউটার</option>
+          <option value="০১">ব্যাচ-০১</option>
+          <option value="০২">ব্যাচ-০২</option>
+          <option value="০৩">ব্যাচ-০৩</option>
+          <option value="০৪">ব্যাচ-০৪</option>
+          <option value="অর্থনীতি">অর্থনীতি</option>
         </select>
       </div>
 
       {loading ? (
-        <p className='text-center'>Loading students...</p>
+        <p className="text-center">Loading students...</p>
       ) : students.length === 0 ? (
-        <p className='text-center'>No students found in this batch.</p>
+        <p className="text-center">No students found in this batch.</p>
       ) : (
-        <table className='border-collapse border border-gray-400 w-full bg-white'>
+        <table className="border-collapse border border-gray-400 w-full bg-white">
           <thead>
             <tr>
-              <th className='border border-gray-300 p-1.5'>নাম</th>
-              <th className='border border-gray-300 p-1.5'>উপস্থিতি</th>
-              <th className='border border-gray-300 p-1.5'>এসাইনমেন্ট</th>
+              <th className="border border-gray-300 p-1.5">নাম</th>
+              <th className="border border-gray-300 p-1.5">উপস্থিতি</th>
             </tr>
           </thead>
           <tbody>
-            {students.map(student => (
+            {students.map((student) => (
               <tr key={student.id}>
-                <td className='border border-gray-300 p-1.5'>{student.name}</td>
-                <td className='border border-gray-300 p-1.5 text-center'>
+                <td className="border border-gray-300 p-1.5">{student.name}</td>
+                <td className="border border-gray-300 p-1.5 text-center">
                   <input
-                    type='checkbox'
-                    className='checkbox checkbox-success'
+                    type="checkbox"
+                    className="checkbox checkbox-success"
                     checked={student.present}
-                    onChange={() => handleCheckboxChange(student.id, 'present')}
-                  />
-                </td>
-                <td className='border border-gray-300 p-1.5 text-center'>
-                  <input
-                    type='checkbox'
-                    className='checkbox checkbox-success'
-                    checked={student.assignment}
-                    onChange={() =>
-                      handleCheckboxChange(student.id, 'assignment')
-                    }
+                    onChange={() => handleCheckboxChange(student.id)}
                   />
                 </td>
               </tr>
@@ -151,7 +157,7 @@ export default function AddAttendance() {
       )}
 
       <button
-        className='btn btn-neutral mt-4'
+        className="btn btn-neutral mt-4"
         onClick={handleSubmit}
         disabled={loading || students.length === 0 || !batch}
       >

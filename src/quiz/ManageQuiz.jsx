@@ -10,6 +10,9 @@ import {
   where,
 } from "firebase/firestore";
 import { useNavigate } from "react-router";
+import { FaEdit } from "react-icons/fa";
+import { FaDeleteLeft } from "react-icons/fa6";
+import { CgFileRemove } from "react-icons/cg";
 
 export default function ManageQuiz() {
   const [quizzes, setQuizzes] = useState([]);
@@ -31,15 +34,12 @@ export default function ManageQuiz() {
     const ref = doc(db, "quizzes", quiz.id);
     await updateDoc(ref, { isActive: !quiz.isActive });
     setQuizzes((prev) =>
-      prev.map((q) =>
-        q.id === quiz.id ? { ...q, isActive: !q.isActive } : q
-      )
+      prev.map((q) => (q.id === quiz.id ? { ...q, isActive: !q.isActive } : q))
     );
   };
 
   const deleteQuiz = async (quiz) => {
-    if (!window.confirm("আপনি কি নিশ্চিতভাবে এই কুইজ মুছে ফেলতে চান?"))
-      return;
+    if (!window.confirm("আপনি কি নিশ্চিতভাবে এই কুইজ মুছে ফেলতে চান?")) return;
     await deleteDoc(doc(db, "quizzes", quiz.id));
     setQuizzes((prev) => prev.filter((q) => q.id !== quiz.id));
   };
@@ -90,21 +90,24 @@ export default function ManageQuiz() {
               <td className="border border-gray-300 p-2 flex gap-2">
                 <button
                   className="btn btn-sm btn-warning"
+                  title="Edit"
                   onClick={() => navigate(`/edit-quiz/${quiz.id}`)}
                 >
-                  Edit
+                  <FaEdit></FaEdit>
                 </button>
                 <button
                   className="btn btn-sm btn-error"
+                  title="Delete Quiz"
                   onClick={() => deleteQuiz(quiz)}
                 >
-                  Delete Quiz
+                  <FaDeleteLeft />
                 </button>
                 <button
+                  title="Delete Result"
                   className="btn btn-sm btn-info"
                   onClick={() => deleteResults(quiz)}
                 >
-                  Delete Results
+                  <CgFileRemove></CgFileRemove>
                 </button>
               </td>
             </tr>

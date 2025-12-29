@@ -21,7 +21,7 @@ export default function QuizResult() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const batchOptions = ["০১", "০২", "০৩", "০৪", "কম্পিউটার"];
+  const batchOptions = ["০১", "০২", "০৩", "০৪", "অর্থনীতি"];
 
   // Fetch quizzes whenever selected batches change
   useEffect(() => {

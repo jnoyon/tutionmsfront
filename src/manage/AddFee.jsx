@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { db } from '../firebase/firebase.init';
+import React, { useEffect, useState, useContext } from "react";
+import { db } from "../firebase/firebase.init";
 import {
   collection,
   query,
@@ -8,31 +8,52 @@ import {
   updateDoc,
   doc,
   arrayUnion,
-} from 'firebase/firestore';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+} from "firebase/firestore";
+import { AuthContext } from "../firebase/AuthProvider";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddFee() {
-  const [batch, setBatch] = useState('Intensive-1');
+  const { user } = useContext(AuthContext);
+  const [batch, setBatch] = useState("Intensive-1");
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+
+  // ✅ Super admin emails
+  const superAdmins = ["jihadur51@gmail.com"];
+  const isSuperAdmin = superAdmins.includes(user?.email);
+
+  // Block non-super-admin
+  if (!user) return <p className="text-center mt-10">লোড হচ্ছে...</p>;
+  if (!isSuperAdmin)
+    return (
+      <p className="text-center mt-10 text-red-500">
+        আপনার অনুমতি নেই। শুধুমাত্র Super Admin অ্যাক্সেস করতে পারবেন।
+      </p>
+    );
 
   // Load students whenever batch changes
   useEffect(() => {
     const fetchStudents = async () => {
       setLoading(true);
-      setSelectedStudent(null); // reset selected student on batch change
+      setSelectedStudent(null);
       try {
-        const q = query(collection(db, 'students'), where('batch', '==', batch));
+        const q = query(
+          collection(db, "students"),
+          where("batch", "==", batch)
+        );
         const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setStudents(data);
       } catch (err) {
         console.error(err);
-        toast.error('শিক্ষার্থী লোড করতে ব্যর্থ');
+        toast.error("শিক্ষার্থী লোড করতে ব্যর্থ");
       } finally {
         setLoading(false);
       }
@@ -41,33 +62,31 @@ export default function AddFee() {
   }, [batch]);
 
   const handleSubmit = async () => {
-    if (!selectedStudent) return toast.error('শিক্ষার্থী নির্বাচন করুন');
-    if (!amount) return toast.error('টাকা লিখুন');
+    if (!selectedStudent) return toast.error("শিক্ষার্থী নির্বাচন করুন");
+    if (!amount) return toast.error("টাকা লিখুন");
 
     try {
-      const studentRef = doc(db, 'students', selectedStudent.id);
+      const studentRef = doc(db, "students", selectedStudent.id);
       const now = new Date();
 
       await updateDoc(studentRef, {
-        fees: arrayUnion({
-          amount: Number(amount),
-          description,
-          paidAt: now,
-        }),
+        fees: arrayUnion({ amount: Number(amount), description, paidAt: now }),
       });
 
-      toast.success('ফি জমা হয়েছে');
-      setAmount('');
-      setDescription('');
+      toast.success("ফি জমা হয়েছে");
+      setAmount("");
+      setDescription("");
 
-      // Refresh selected student fees
-      setSelectedStudent(prev => ({
+      setSelectedStudent((prev) => ({
         ...prev,
-        fees: [...(prev.fees || []), { amount: Number(amount), description, paidAt: now }],
+        fees: [
+          ...(prev.fees || []),
+          { amount: Number(amount), description, paidAt: now },
+        ],
       }));
     } catch (err) {
       console.error(err);
-      toast.error('ফি জমা হয়নি: ' + err.message);
+      toast.error("ফি জমা হয়নি: " + err.message);
     }
   };
 
@@ -81,13 +100,13 @@ export default function AddFee() {
         <select
           className="select w-full select-bordered ml-2"
           value={batch}
-          onChange={e => setBatch(e.target.value)}
+          onChange={(e) => setBatch(e.target.value)}
         >
           <option value="০১">ব্যাচ-০১</option>
           <option value="০২">ব্যাচ-০২</option>
           <option value="০৩">ব্যাচ-০৩</option>
           <option value="০৪">ব্যাচ-০৪</option>
-          <option value="কম্পিউটার">কম্পিউটার</option>
+          <option value="অর্থনীতি">অর্থনীতি</option>
         </select>
       </div>
 
@@ -96,13 +115,13 @@ export default function AddFee() {
         <label>শিক্ষার্থী বাছাই করুন:</label>
         <select
           className="select select-bordered w-full ml-2"
-          value={selectedStudent?.id || ''}
-          onChange={e =>
-            setSelectedStudent(students.find(s => s.id === e.target.value))
+          value={selectedStudent?.id || ""}
+          onChange={(e) =>
+            setSelectedStudent(students.find((s) => s.id === e.target.value))
           }
         >
           <option value="">নাম</option>
-          {students.map(student => (
+          {students.map((student) => (
             <option key={student.id} value={student.id}>
               {student.name}
             </option>
@@ -117,7 +136,7 @@ export default function AddFee() {
           className="input input-bordered w-full"
           placeholder="টাকা"
           value={amount}
-          onChange={e => setAmount(e.target.value)}
+          onChange={(e) => setAmount(e.target.value)}
           disabled={!selectedStudent}
         />
         <input
@@ -125,7 +144,7 @@ export default function AddFee() {
           className="input input-bordered w-full"
           placeholder="বিবরণ"
           value={description}
-          onChange={e => setDescription(e.target.value)}
+          onChange={(e) => setDescription(e.target.value)}
           disabled={!selectedStudent}
         />
       </div>
@@ -154,9 +173,11 @@ export default function AddFee() {
               {selectedStudent.fees.map((f, idx) => (
                 <tr key={idx}>
                   <td className="border border-gray-300 p-1.5">{f.amount}</td>
-                  <td className="border border-gray-300 p-1.5">{f.description}</td>
                   <td className="border border-gray-300 p-1.5">
-                    {f.paidAt ? new Date(f.paidAt).toLocaleDateString() : '---'}
+                    {f.description}
+                  </td>
+                  <td className="border border-gray-300 p-1.5">
+                    {f.paidAt ? new Date(f.paidAt).toLocaleDateString() : "---"}
                   </td>
                 </tr>
               ))}

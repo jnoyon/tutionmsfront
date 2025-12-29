@@ -11,10 +11,11 @@ export default function AddVideo() {
   const [batches, setBatches] = useState([]);
 
   const handleBatchChange = (batchName) => {
-    setBatches((prev) =>
-      prev.includes(batchName)
-        ? prev.filter((b) => b !== batchName) // remove
-        : [...prev, batchName] // add
+    setBatches(
+      (prev) =>
+        prev.includes(batchName)
+          ? prev.filter((b) => b !== batchName) // remove
+          : [...prev, batchName] // add
     );
   };
 
@@ -87,7 +88,7 @@ export default function AddVideo() {
           <div className="flex items-center gap-2 mt-2 border border-gray-300 rounded-sm bg-white p-2">
             <label className="label">ব্যাচ</label>
             <div className="flex flex-col sm:flex-row gap-2">
-              {["০১", "০২","০৩", "০৪", "কম্পিউটার"].map((batchName) => (
+              {["০১", "০২", "০৩", "০৪", "অর্থনীতি"].map((batchName) => (
                 <label
                   key={batchName}
                   className="cursor-pointer flex items-center gap-2"

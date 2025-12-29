@@ -22,7 +22,10 @@ export default function RecentQuiz() {
       setLoading(true);
       try {
         const snapshot = await getDocs(collection(db, "quizResults"));
-        const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setResults(data);
       } catch (err) {
         console.error(err);
@@ -48,13 +51,18 @@ export default function RecentQuiz() {
   };
 
   if (!user) return <p className="text-center mt-10">লোড হচ্ছে...</p>;
-  if (!isAdmin) return <p className="text-center mt-10 text-red-500">আপনার অ্যাক্সেস নেই</p>;
+  if (!isAdmin)
+    return (
+      <p className="text-center mt-10 text-red-500">আপনার অ্যাক্সেস নেই</p>
+    );
 
   return (
     <div className="w-11/12 mx-auto my-5">
       <ToastContainer autoClose={2000} />
 
-      <h2 className="text-2xl font-bold mb-4 text-center">সাম্প্রতিক কুইজ রেজাল্ট</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">
+        সাম্প্রতিক কুইজ রেজাল্ট
+      </h2>
 
       {loading ? (
         <p className="text-gray-500 text-center">লোড হচ্ছে...</p>
@@ -75,10 +83,18 @@ export default function RecentQuiz() {
             <tbody className="bg-white divide-y divide-gray-300">
               {results.map((r, idx) => (
                 <tr key={r.id}>
-                  <td className="p-2 border border-gray-300 text-center">{idx + 1}</td>
-                  <td className="p-2 border border-gray-300">{r.quizTitle || r.quizId}</td>
-                  <td className="p-2 border border-gray-300">{r.studentName || "অজানা"}</td>
-                  <td className="p-2 border border-gray-300 text-center">{r.score}/{r.total}</td>
+                  <td className="p-2 border border-gray-300 text-center">
+                    {idx + 1}
+                  </td>
+                  <td className="p-2 border border-gray-300">
+                    {r.quizTitle || r.quizId}
+                  </td>
+                  <td className="p-2 border border-gray-300">
+                    {r.studentName || "অজানা"}
+                  </td>
+                  <td className="p-2 border border-gray-300 text-center">
+                    {r.score}/{r.total}
+                  </td>
                   <td className="p-2 border border-gray-300 text-center">
                     <button
                       onClick={() => deleteResult(r.id)}
